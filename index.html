@@ -4,112 +4,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="DojiDash — build your trading intuition in the ultimate training hub.">
-    <title>Training Hub | DojiDash</title>
+    <meta name="description" content="DojiDash — Professional trading intuition training platform.">
+    <title>Dashboard | DojiDash</title>
     <link rel="icon" href="assets/images/Logo.gif" type="image/gif">
 
-    <!-- Design System -->
-    <link rel="stylesheet" href="tokens.css">
-    <link rel="stylesheet" href="dashboard.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="premium-tokens.css">
+    <link rel="stylesheet" href="premium-dashboard.css">
 
     <!-- Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <!-- TOP NAVIGATION -->
-    <nav class="top-nav">
-        <div class="nav-user">
-            <span id="userGreeting">Welcome, <strong id="currentUsername">...</strong></span>
-            <button id="logoutBtn" class="logout-link">Logout</button>
-        </div>
-    </nav>
+    <!-- DASHBOARD LAYOUT -->
+    <div class="dashboard-container">
 
-    <!-- HERO SECTION -->
-    <header class="hero">
-        <img src="assets/images/Logo.gif" alt="DojiDash Logo" class="mascot-icon">
-        <h1>Your Training Hub</h1>
-        <p>Choose a mode to continue your journey</p>
-    </header>
-
-    <!-- MODE GRID (2x3) -->
-    <main class="dashboard-grid">
-
-        <!-- Mode 1: Start Game -->
-        <div id="startBtn" class="mode-card">
-            <div class="card-icon icon-green">🎮</div>
-            <div class="card-content">
-                <h2>Predictive Game</h2>
-                <p>Test your intuition against real-world price action data in the classic DojiDash mode.</p>
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="assets/images/Logo.gif" alt="DojiDash" class="sidebar-logo">
+                <span class="sidebar-title">DojiDash</span>
             </div>
-        </div>
 
-        <!-- Mode 2: Focus Mode -->
-        <div id="focusBtn" class="mode-card">
-            <div class="card-icon icon-indigo">🔍</div>
-            <div class="card-content">
-                <h2>Focus Mode</h2>
-                <p>Analyze specific patterns with AI-driven insights to sharpen your technical analysis.</p>
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item active">
+                    <span class="nav-item-icon">🏠</span>
+                    <span>Dashboard</span>
+                </a>
+                
+                <div class="nav-section">
+                    <div class="nav-section-label">Training Modes</div>
+                    <a href="game.html" class="nav-item" id="startBtn">
+                        <span class="nav-item-icon">🎮</span>
+                        <span>Predictive Game</span>
+                    </a>
+                    <a href="focus.html" class="nav-item" id="focusBtn">
+                        <span class="nav-item-icon">🔍</span>
+                        <span>Focus Mode</span>
+                    </a>
+                    <a href="trading.html" class="nav-item" id="tradingBtn">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Trading Simulator</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-label">Learning</div>
+                    <a href="learn.html" class="nav-item" id="learnBtn">
+                        <span class="nav-item-icon">📚</span>
+                        <span>Fundamentals</span>
+                    </a>
+                    <a href="test.html" class="nav-item" id="testBtn">
+                        <span class="nav-item-icon">🏆</span>
+                        <span>Certification</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">?</div>
+                    <div class="user-details">
+                        <div class="user-name" id="currentUsername">Loading...</div>
+                        <div class="user-status">Pro Trader</div>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
             </div>
-        </div>
+        </aside>
 
-        <!-- Mode 3: Trading Mode -->
-        <div id="tradingBtn" class="mode-card">
-            <div class="card-icon icon-slate">📈</div>
-            <div class="card-content">
-                <h2>Trading Simulator</h2>
-                <p>Enter and exit trades in a risk-free environment with advanced charting controls.</p>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            
+            <!-- PAGE HEADER -->
+            <header class="page-header">
+                <div class="page-title-group">
+                    <h1>Training Hub</h1>
+                    <p class="page-subtitle">Choose a mode to continue your journey</p>
+                </div>
+            </header>
+
+            <!-- MODE GRID -->
+            <div class="mode-grid">
+
+                <!-- Mode 1: Predictive Game -->
+                <div class="mode-card" id="startBtnCard">
+                    <div class="mode-card-icon mode-icon-game">🎮</div>
+                    <div class="mode-card-content">
+                        <h2>Predictive Game</h2>
+                        <p>Test your intuition against real-world price action data in the classic DojiDash mode.</p>
+                    </div>
+                </div>
+
+                <!-- Mode 2: Focus Mode -->
+                <div class="mode-card" id="focusBtnCard">
+                    <div class="mode-card-icon mode-icon-focus">🔍</div>
+                    <div class="mode-card-content">
+                        <h2>Focus Mode</h2>
+                        <p>Analyze specific patterns with AI-driven insights to sharpen your technical analysis.</p>
+                    </div>
+                </div>
+
+                <!-- Mode 3: Trading Simulator -->
+                <div class="mode-card" id="tradingBtnCard">
+                    <div class="mode-card-icon mode-icon-trading">📈</div>
+                    <div class="mode-card-content">
+                        <h2>Trading Simulator</h2>
+                        <p>Enter and exit trades in a risk-free environment with advanced charting controls.</p>
+                    </div>
+                </div>
+
+                <!-- Mode 4: Learn Fundamentals -->
+                <div class="mode-card" id="learnBtnCard">
+                    <div class="mode-card-icon mode-icon-learn">📚</div>
+                    <div class="mode-card-content">
+                        <h2>Learn Fundamentals</h2>
+                        <p>Master the core concepts of candlesticks, volume, and market psychology.</p>
+                    </div>
+                </div>
+
+                <!-- Mode 5: Certification Test -->
+                <div class="mode-card" id="testBtnCard">
+                    <div class="mode-card-icon mode-icon-test">🏆</div>
+                    <div class="mode-card-content">
+                        <h2>Certification Test</h2>
+                        <p>Validate your skills and earn your stripes in the Trading Intuition Trainer V4.</p>
+                    </div>
+                </div>
+
+                <!-- Mode 6: Coming Soon -->
+                <div class="mode-card" style="opacity: 0.5; cursor: default;">
+                    <div class="mode-card-icon" style="background: var(--bg-hover);">🔜</div>
+                    <div class="mode-card-content">
+                        <h2>More Coming Soon</h2>
+                        <p>New training modules and community challenges are currently in development.</p>
+                    </div>
+                </div>
+
             </div>
-        </div>
 
-        <!-- Mode 4: Learn Basics -->
-        <div id="learnBtn" class="mode-card">
-            <div class="card-icon icon-teal">📚</div>
-            <div class="card-content">
-                <h2>Learn Fundamentals</h2>
-                <p>Master the core concepts of candlesticks, volume, and market psychology.</p>
-            </div>
-        </div>
+            <!-- FOOTER -->
+            <footer style="text-align: center; padding: var(--space-8); color: var(--text-tertiary); font-size: var(--text-xs); border-top: 1px solid var(--border-subtle); margin-top: auto;">
+                <p>DojiDash: A professional experiment in intuition, probability, and fun.</p>
+                <p style="margin-top: var(--space-2); opacity: 0.6;">© 2024 DojiDash. All rights reserved.</p>
+            </footer>
 
-        <!-- Mode 5: Take Test -->
-        <div id="testBtn" class="mode-card">
-            <div class="card-icon icon-blue">🏆</div>
-            <div class="card-content">
-                <h2>Certification Test</h2>
-                <p>Validate your skills and earn your stripes in the Trading Intuition Trainer V4.</p>
-            </div>
-        </div>
+        </main>
 
-        <!-- Mode 6: Coming Soon -->
-        <div class="mode-card" style="opacity: 0.6; cursor: default;">
-            <div class="card-icon">🔜</div>
-            <div class="card-content">
-                <h2>More Coming Soon</h2>
-                <p>New training modules and community challenges are currently in development.</p>
-            </div>
-        </div>
+    </div>
 
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="dashboard-footer">
-        <p class="footer-text">
-            DojiDash: A tiny experiment in intuition, probability, and fun.
-        </p>
-    </footer>
-
-    <!-- SCRIPTS (Shared with original dashboard) -->
-    <!-- 1. Configuration -->
+    <!-- SCRIPTS -->
     <script src="config.js"></script>
-    <!-- 2. Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- 3. Shared client -->
     <script src="supabase.js"></script>
-    <!-- 4. Page logic (Persisted IDs ensure this works untoched) -->
     <script src="homepage.js"></script>
+
+    <script>
+        // Add card click handlers to mirror button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardMappings = {
+                'startBtnCard': 'startBtn',
+                'focusBtnCard': 'focusBtn',
+                'tradingBtnCard': 'tradingBtn',
+                'learnBtnCard': 'learnBtn',
+                'testBtnCard': 'testBtn'
+            };
+
+            Object.entries(cardMappings).forEach(([cardId, btnId]) => {
+                const card = document.getElementById(cardId);
+                const btn = document.getElementById(btnId);
+                if (card && btn) {
+                    card.addEventListener('click', () => btn.click());
+                }
+            });
+
+            // Set user avatar initial
+            const username = localStorage.getItem('dojidash_username') || 'User';
+            const avatar = document.getElementById('userAvatar');
+            if (avatar) {
+                avatar.textContent = username.charAt(0).toUpperCase();
+            }
+        });
+    </script>
 
 </body>
 
