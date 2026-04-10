@@ -108,6 +108,7 @@
   --z-modal: 400;
   --z-popover: 500;
   --z-tooltip: 600;
+  --z-toast: 700;
 }
 
 /* ── Global Reset & Base ── */
