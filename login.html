@@ -7,14 +7,219 @@
     <title>Login | DojiDash</title>
     <link rel="icon" href="assets/images/Logo.gif" type="image/gif">
     
-    <!-- Design System -->
-    <link rel="stylesheet" href="tokens.css">
-    <link rel="stylesheet" href="login.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="premium-tokens.css">
     
     <!-- Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Login Page - Dark Theme */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-primary);
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 4fr 6fr;
+            overflow: hidden;
+        }
+
+        /* ── Left Side (40%) ── */
+        .login-left {
+            background: linear-gradient(135deg, #09090b 0%, #121217 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid var(--border-subtle);
+        }
+
+        /* Abstract background texture */
+        .login-left::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+            animation: pulse 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        .brand-logo {
+            width: 280px;
+            height: auto;
+            z-index: 10;
+            filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3));
+            animation: logoIn 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes logoIn {
+            from { opacity: 0; transform: scale(0.9) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        /* ── Right Side (60%) ── */
+        .login-right {
+            background: var(--bg-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(20px);
+            padding: 48px;
+            border-radius: 20px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) delay 0.2s both;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .login-header {
+            margin-bottom: 32px;
+        }
+
+        .login-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
+            margin-bottom: 8px;
+        }
+
+        .login-header p {
+            font-size: 15px;
+            color: var(--text-tertiary);
+        }
+
+        /* ── Form Items ── */
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(39, 39, 42, 0.5);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text-primary);
+            transition: all 0.2s ease;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .form-input:focus {
+            background: rgba(39, 39, 42, 0.8);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            margin-top: 32px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-tertiary);
+        }
+
+        .login-footer a {
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            body {
+                grid-template-columns: 1fr;
+                grid-template-rows: 280px 1fr;
+            }
+
+            .brand-logo {
+                width: 180px;
+            }
+
+            .login-right {
+                padding: 24px;
+            }
+
+            .login-card {
+                padding: 32px;
+                box-shadow: none;
+                background: transparent;
+                border: none;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -54,7 +259,7 @@
                         placeholder="••••••••" 
                         disabled
                     >
-                    <p style="font-size: 11px; color: #94a3b8; margin-top: 6px;">Fake login for demo purposes. Password is not required.</p>
+                    <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 6px;">Fake login for demo purposes. Password is not required.</p>
                 </div>
 
                 <button type="submit" class="login-btn">
