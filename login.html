@@ -213,25 +213,160 @@
 
         /* ── Right Side (60%) ── */
         .login-right {
-            background: var(--bg-deep);
+            background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px;
             position: relative;
+            overflow: hidden;
+        }
+
+        /* Ticker Tape on Login Page */
+        .login-tape-container {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ticker-tape-wrapper {
+            position: relative;
+            background: rgba(24, 24, 27, 0.6);
+            backdrop-filter: blur(16px);
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            overflow: hidden;
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .ticker-tape-inner-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(99, 102, 241, 0.6), 
+                rgba(168, 85, 247, 0.4), 
+                rgba(99, 102, 241, 0.6), 
+                transparent);
+            z-index: 3;
+        }
+
+        .ticker-tape-wrapper::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(99, 102, 241, 0.3), 
+                transparent);
+            z-index: 3;
+        }
+
+        .ticker-tape-shimmer {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(99, 102, 241, 0.08), 
+                transparent);
+            animation: shimmer 4s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            50% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        .ticker-tape {
+            position: relative;
+            padding: 12px 0;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .ticker-content {
+            display: flex;
+            gap: 24px;
+            white-space: nowrap;
+            animation: scrollLeft 30s linear infinite;
+        }
+
+        .ticker-content:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .ticker-item {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.02em;
+        }
+
+        .ticker-separator {
+            color: var(--accent-primary);
+            opacity: 0.6;
+            font-weight: 600;
+        }
+
+        .ticker-tape-wrapper:hover {
+            border-color: rgba(99, 102, 241, 0.3);
+            box-shadow: 
+                0 4px 32px rgba(0, 0, 0, 0.4),
+                0 0 40px rgba(99, 102, 241, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
         /* Subtle decorative elements on right side */
         .login-right::before {
             content: '';
             position: absolute;
-            top: -100px;
-            right: -100px;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+            top: -150px;
+            right: -150px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
             border-radius: 50%;
             pointer-events: none;
+            z-index: 0;
+        }
+
+        .login-right::after {
+            content: '';
+            position: absolute;
+            bottom: -100px;
+            left: -100px;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .login-card {
@@ -246,6 +381,8 @@
                 0 4px 32px rgba(0, 0, 0, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.06);
             animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+            position: relative;
+            z-index: 1;
         }
 
         @keyframes cardIn {
@@ -409,9 +546,13 @@
             .login-card {
                 padding: 32px;
                 box-shadow: none;
-                background: transparent;
-                border: none;
-                backdrop-filter: none;
+                background: rgba(24, 24, 27, 0.8);
+                backdrop-filter: blur(24px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .login-tape-container {
+                margin-bottom: 24px;
             }
         }
     </style>
@@ -446,6 +587,46 @@
 
     <!-- Right Section: Login Interaction -->
     <main class="login-right">
+        <!-- Ticker Tape -->
+        <div class="login-tape-container">
+            <div class="ticker-tape-wrapper">
+                <!-- Inner glow line -->
+                <div class="ticker-tape-inner-glow"></div>
+                <!-- Shimmer overlay -->
+                <div class="ticker-tape-shimmer"></div>
+                
+                <div class="ticker-tape">
+                    <div class="ticker-content">
+                        <span class="ticker-item">A clear voice in a crowded market, breaking down the jargon and showing you what really matters on the chart.</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">UNDERSTAND CHARTS</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">LEARN PATTERNS</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">RECOGNIZE PATTERNS</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">BUILD INTUITION</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">USE AI TO ENHANCE YOUR INTUITION, NOT TO OFFLOAD DECISION-MAKING</span>
+                        <span class="ticker-separator">•</span>
+                        <!-- Duplicate for seamless loop -->
+                        <span class="ticker-item">A clear voice in a crowded market, breaking down the jargon and showing you what really matters on the chart.</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">UNDERSTAND CHARTS</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">LEARN PATTERNS</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">RECOGNIZE PATTERNS</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">BUILD INTUITION</span>
+                        <span class="ticker-separator">•</span>
+                        <span class="ticker-item">USE AI TO ENHANCE YOUR INTUITION, NOT TO OFFLOAD DECISION-MAKING</span>
+                        <span class="ticker-separator">•</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         <div class="login-card">
             <header class="login-header">
                 <h1>Welcome back</h1>
