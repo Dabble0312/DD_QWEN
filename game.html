@@ -6,44 +6,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="DojiDash Game Mode — predict up or down on the next candlestick and build your streak.">
-    <title>DojiDash</title>
+    <title>Predictive Game | DojiDash</title>
     <link rel="icon" href="assets/images/Logo.gif" type="image/gif">
-    <link rel="stylesheet" href="tokens.css">
-    <link rel="stylesheet" href="styles.css">
 
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="premium-tokens.css">
+    <link rel="stylesheet" href="premium-dashboard.css">
+    <link rel="stylesheet" href="game-premium.css">
+
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-    <div id="usernameDisplay" class="username-display"></div>
-    <div id="streakDisplay" class="streak-display">Streak: 0</div>
-    <div id="bestDisplay" class="best-display">Best: 0</div>
-
-    <div class="chart-wrapper">
-        <div id="chart"></div>
-        <div id="glowOverlay" class="glow-overlay"></div>
-    </div>
-
-    <button id="downBtn" class="down">DOWN</button>
-    <button id="upBtn" class="up">UP</button>
-
-    <div id="resultPopup" class="popup hidden">
-        <span id="popupResultText"></span>
-    </div>
-
-    <div id="wsbPopup" class="wsb-popup">
-        <img id="mascotEmoji" class="wsb-emoji">
-        <span id="wsbText" class="wsb-text"></span>
-    </div>
-
-    <div id="endScreen" class="end-screen hidden">
-        <div class="end-content">
-            <h2>Run Complete!</h2>
-            <p id="resultText"></p>
-            <button id="playAgainBtn">Play Again</button>
-            <button id="homeBtn">Home</button>
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar sidebar-game">
+        <div class="sidebar-header">
+            <a href="index.html" style="display: flex; align-items: center; gap: var(--space-3); text-decoration: none;">
+                <img src="assets/images/Logo.gif" alt="DojiDash" class="sidebar-logo">
+                <span class="sidebar-title">DojiDash</span>
+            </a>
         </div>
-    </div>
+
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span>Dashboard</span>
+            </a>
+            
+            <div class="nav-section">
+                <div class="nav-section-label">Training Modes</div>
+                <a href="game.html" class="nav-item active">
+                    <span class="nav-item-icon">🎮</span>
+                    <span>Predictive Game</span>
+                </a>
+                <a href="focus.html" class="nav-item">
+                    <span class="nav-item-icon">🔍</span>
+                    <span>Focus Mode</span>
+                </a>
+                <a href="trading.html" class="nav-item">
+                    <span class="nav-item-icon">📈</span>
+                    <span>Trading Simulator</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-label">Learning</div>
+                <a href="learn.html" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Fundamentals</span>
+                </a>
+                <a href="test.html" class="nav-item">
+                    <span class="nav-item-icon">🏆</span>
+                    <span>Certification</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div class="user-details">
+                    <div class="user-name" id="currentUsername">Loading...</div>
+                    <div class="user-status">Pro Trader</div>
+                </div>
+            </div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+    </aside>
+
+    <!-- MAIN GAME AREA -->
+    <main class="game-main">
+        
+        <!-- HUD Header -->
+        <header class="game-hud">
+            <div class="game-title-group">
+                <h1 class="game-title">Predictive Game</h1>
+                <p class="game-subtitle">Predict the next candle direction</p>
+            </div>
+            <div class="game-stats">
+                <div class="stat-pill">
+                    <span class="stat-label">Streak</span>
+                    <span id="streakDisplay" class="stat-value">0</span>
+                </div>
+                <div class="stat-pill">
+                    <span class="stat-label">Best</span>
+                    <span id="bestDisplay" class="stat-value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Chart Viewport -->
+        <div class="chart-viewport game-chart-viewport">
+            <div id="chart"></div>
+            <div id="glowOverlay" class="glow-overlay"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="game-actions">
+            <button id="downBtn" class="btn btn-danger btn-lg game-btn-down">
+                <span class="btn-icon">▼</span> DOWN
+            </button>
+            <button id="upBtn" class="btn btn-success btn-lg game-btn-up">
+                <span class="btn-icon">▲</span> UP
+            </button>
+        </div>
+
+        <!-- Result Popup -->
+        <div id="resultPopup" class="popup-overlay hidden">
+            <div class="popup-content game-result-popup">
+                <span id="popupResultText"></span>
+            </div>
+        </div>
+
+        <!-- WSB Popup -->
+        <div id="wsbPopup" class="wsb-popup">
+            <img id="mascotEmoji" class="wsb-emoji">
+            <span id="wsbText" class="wsb-text"></span>
+        </div>
+
+        <!-- End Screen -->
+        <div id="endScreen" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h2 class="popup-title">Run Complete!</h2>
+                <p id="resultText" class="popup-body"></p>
+                <div class="popup-actions">
+                    <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+                    <button id="homeBtn" class="btn btn-secondary">Home</button>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <!-- 1. Config -->
     <script src="config.js"></script>

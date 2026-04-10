@@ -6,77 +6,189 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description"
         content="DojiDash Trading Mode — simulate real trades with live P&L tracking on historical candlestick data.">
-    <title>DojiDash — Trading Mode</title>
+    <title>Trading Simulator | DojiDash</title>
     <link rel="icon" href="assets/images/Logo.gif" type="image/gif">
-    <link rel="stylesheet" href="tokens.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="trading.css">
 
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="premium-tokens.css">
+    <link rel="stylesheet" href="premium-dashboard.css">
+    <link rel="stylesheet" href="trading-premium.css">
 
-<body class="trading-body">
+    <!-- Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
 
-    <div id="usernameDisplay" class="username-display-trading"></div>
-    <div id="tradingHUD" class="trading-hud">Loading...</div>
-    <div id="tradingStatus" class="trading-status"></div>
+<body>
 
-    <div class="trading-layout">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar sidebar-trading">
+        <div class="sidebar-header">
+            <a href="index.html" style="display: flex; align-items: center; gap: var(--space-3); text-decoration: none;">
+                <img src="assets/images/Logo.gif" alt="DojiDash" class="sidebar-logo">
+                <span class="sidebar-title">DojiDash</span>
+            </a>
+        </div>
 
-        <!-- Left: chart -->
-        <div>
-            <div class="chart-wrapper">
-                <div id="chart"></div>
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-item-icon">🏠</span>
+                <span>Dashboard</span>
+            </a>
+            
+            <div class="nav-section">
+                <div class="nav-section-label">Training Modes</div>
+                <a href="game.html" class="nav-item">
+                    <span class="nav-item-icon">🎮</span>
+                    <span>Predictive Game</span>
+                </a>
+                <a href="focus.html" class="nav-item">
+                    <span class="nav-item-icon">🔍</span>
+                    <span>Focus Mode</span>
+                </a>
+                <a href="trading.html" class="nav-item active">
+                    <span class="nav-item-icon">📈</span>
+                    <span>Trading Simulator</span>
+                </a>
             </div>
 
-            <!-- Buttons below chart -->
-            <div class="trading-buttons">
-                <button id="revealBtn" class="btn-reveal-trading">REVEAL</button>
-                <button id="buyBtn" class="btn-buy">BUY</button>
-                <button id="sellBtn" class="btn-sell">SELL</button>
-                <button id="exitBtn" class="btn-exit">EXIT</button>
-                <button id="endSessionBtn" class="btn-end-session">End Session</button>
+            <div class="nav-section">
+                <div class="nav-section-label">Learning</div>
+                <a href="learn.html" class="nav-item">
+                    <span class="nav-item-icon">📚</span>
+                    <span>Fundamentals</span>
+                </a>
+                <a href="test.html" class="nav-item">
+                    <span class="nav-item-icon">🏆</span>
+                    <span>Certification</span>
+                </a>
+            </div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">?</div>
+                <div class="user-details">
+                    <div class="user-name" id="currentUsername">Loading...</div>
+                    <div class="user-status">Pro Trader</div>
+                </div>
+            </div>
+            <button id="logoutBtn" class="logout-btn">Logout</button>
+        </div>
+    </aside>
+
+    <!-- MAIN TRADING AREA -->
+    <main class="trading-main">
+        
+        <!-- HUD Header -->
+        <header class="trading-hud">
+            <div class="trading-title-group">
+                <h1 class="trading-title">Trading Simulator</h1>
+                <p class="trading-subtitle">Execute trades with live P&L tracking</p>
+            </div>
+            <div class="trading-stats-bar">
+                <div class="trading-stat">
+                    <span class="trading-stat-label">P&L</span>
+                    <span id="tradingHUD" class="trading-stat-value">Loading...</span>
+                </div>
+                <div class="trading-status-indicator" id="tradingStatus"></div>
+            </div>
+        </header>
+
+        <!-- Main Trading Layout -->
+        <div class="trading-layout-premium">
+            
+            <!-- Left: Chart + Controls -->
+            <div class="trading-chart-section">
+                <div class="chart-viewport trading-chart-viewport">
+                    <div id="chart"></div>
+                </div>
+
+                <!-- Trading Actions -->
+                <div class="trading-actions-bar">
+                    <button id="revealBtn" class="btn btn-primary btn-lg">REVEAL</button>
+                    <button id="buyBtn" class="btn btn-success btn-lg">
+                        <span class="btn-icon">▲</span> BUY
+                    </button>
+                    <button id="sellBtn" class="btn btn-danger btn-lg">
+                        <span class="btn-icon">▼</span> SELL
+                    </button>
+                    <button id="exitBtn" class="btn btn-warning btn-lg">EXIT</button>
+                    <button id="endSessionBtn" class="btn btn-outline btn-lg">End Session</button>
+                </div>
+            </div>
+
+            <!-- Right: Trade Tape Panel -->
+            <aside class="trade-tape-panel">
+                
+                <!-- Live Trade Section -->
+                <div class="tape-section">
+                    <div class="tape-section-header">
+                        <h3 class="tape-section-title">
+                            <span class="tape-icon">📊</span> Live Position
+                        </h3>
+                    </div>
+                    <div id="liveTrade" class="live-trade-display hidden">
+                        <span class="live-trade-empty">No active position</span>
+                    </div>
+                </div>
+
+                <!-- Trade History Table -->
+                <div class="tape-section tape-history-section">
+                    <div class="tape-section-header">
+                        <h3 class="tape-section-title">
+                            <span class="tape-icon">📜</span> Trade History
+                        </h3>
+                    </div>
+                    <div class="tape-table-wrap">
+                        <table class="tape-table-premium">
+                            <thead>
+                                <tr>
+                                    <th>Dir</th>
+                                    <th>Entry</th>
+                                    <th>Exit</th>
+                                    <th>P/L</th>
+                                    <th>Dur</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tapebody">
+                                <tr class="empty-row">
+                                    <td colspan="5" class="empty-cell">No trades yet</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Session Summary -->
+                <div class="tape-section">
+                    <div class="tape-section-header">
+                        <h3 class="tape-section-title">
+                            <span class="tape-icon">📈</span> Session Summary
+                        </h3>
+                    </div>
+                    <div id="sessionSummary" class="session-summary">
+                        <span class="summary-empty">No trades yet</span>
+                    </div>
+                </div>
+
+            </aside>
+        </div>
+
+        <!-- End Screen -->
+        <div id="endScreen" class="popup-overlay hidden">
+            <div class="popup-content">
+                <h2 class="popup-title">Session Over</h2>
+                <p id="resultText" class="popup-body"></p>
+                <div class="popup-actions">
+                    <button id="playAgainBtn" class="btn btn-primary">New Session</button>
+                    <button id="homeBtn" class="btn btn-secondary">Home</button>
+                </div>
             </div>
         </div>
 
-        <!-- Right: trade tape panel -->
-        <div class="tape-panel">
-            <div class="tape-header">Trade Tape</div>
-
-            <!-- Live open trade — large font, top of panel -->
-            <div id="liveTrade" class="hidden"></div>
-
-            <!-- Closed trades table -->
-            <div class="tape-table-wrap">
-                <table class="tape-table">
-                    <thead>
-                        <tr>
-                            <th>Dir</th>
-                            <th>Entry</th>
-                            <th>Exit</th>
-                            <th>P/L</th>
-                            <th>Dur</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tapebody"></tbody>
-                </table>
-            </div>
-
-            <!-- Session summary — updates after each close -->
-            <div id="sessionSummary">
-                <span class="summary-empty">No trades yet</span>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- End screen -->
-    <div id="endScreen" class="end-screen hidden">
-        <div class="end-content">
-            <h2>Session Over</h2>
-            <p></p>
-            <button id="playAgainBtn">New Session</button>
-            <button id="homeBtn">Home</button>
-        </div>
-    </div>
+    </main>
 
     <!-- Scripts -->
     <script src="config.js"></script>
