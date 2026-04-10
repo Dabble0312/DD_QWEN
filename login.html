@@ -16,7 +16,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
-        /* Login Page - Premium Dark Theme */
+        /* 
+         * DojiDash Login — Premium Dark Mode
+         * "Bloomberg Terminal meets Zen Dojo"
+         */
+        
         * {
             box-sizing: border-box;
             margin: 0;
@@ -25,28 +29,33 @@
 
         body {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--bg-deep);
+            background: var(--bg-primary);
             color: var(--text-primary);
             height: 100vh;
             display: grid;
-            grid-template-columns: 4fr 6fr;
+            grid-template-columns: 45fr 55fr;
             overflow: hidden;
-        }
-
-        /* ── Left Side (40%) - Creative Trading Atmosphere ── */
-        .login-left {
-            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             position: relative;
-            overflow: hidden;
-            border-right: 1px solid var(--border-subtle);
         }
 
-        /* Animated grid background */
-        .login-left::before {
+        /* Global ambient background */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(168, 85, 247, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Subtle grid pattern overlay */
+        body::after {
             content: '';
             position: absolute;
             top: 0;
@@ -54,198 +63,320 @@
             right: 0;
             bottom: 0;
             background-image: 
-                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        @keyframes gridMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* Floating orbs for depth */
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.4;
-            animation: float 8s ease-in-out infinite;
-        }
-
-        .orb-1 {
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
-            top: -50px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
-            bottom: -50px;
-            right: -80px;
-            animation-delay: -4s;
-        }
-
-        .orb-3 {
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -2s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(20px, -30px) scale(1.05); }
-            50% { transform: translate(-15px, 20px) scale(0.95); }
-            75% { transform: translate(25px, 15px) scale(1.02); }
-        }
-
-        /* Candlestick decorations */
-        .candlestick-container {
-            position: absolute;
-            bottom: 60px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 12px;
-            z-index: 5;
-            opacity: 0.6;
-        }
-
-        .candlestick {
-            width: 8px;
-            border-radius: 2px;
-            animation: candleGlow 3s ease-in-out infinite;
-        }
-
-        .candlestick.bullish {
-            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-        }
-
-        .candlestick.bearish {
-            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-        }
-
-        .candlestick:nth-child(1) { height: 60px; animation-delay: 0s; }
-        .candlestick:nth-child(2) { height: 40px; animation-delay: -0.5s; }
-        .candlestick:nth-child(3) { height: 80px; animation-delay: -1s; }
-        .candlestick:nth-child(4) { height: 50px; animation-delay: -1.5s; }
-        .candlestick:nth-child(5) { height: 70px; animation-delay: -2s; }
-
-        @keyframes candleGlow {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.8; }
-        }
-
-        .brand-logo {
-            width: 320px;
-            height: auto;
-            z-index: 10;
-            filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.5)) 
-                    drop-shadow(0 0 80px rgba(99, 102, 241, 0.3));
-            animation: logoIn 1.4s cubic-bezier(0.16, 1, 0.3, 1), 
-                       logoPulse 4s ease-in-out infinite 1.4s;
-        }
-
-        @keyframes logoIn {
-            from { 
-                opacity: 0; 
-                transform: scale(0.85) translateY(30px) rotate(-5deg); 
-            }
-            to { 
-                opacity: 1; 
-                transform: scale(1) translateY(0) rotate(0); 
-            }
-        }
-
-        @keyframes logoPulse {
-            0%, 100% { 
-                filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.5)) 
-                        drop-shadow(0 0 80px rgba(99, 102, 241, 0.3));
-                transform: scale(1);
-            }
-            50% { 
-                filter: drop-shadow(0 0 60px rgba(99, 102, 241, 0.7)) 
-                        drop-shadow(0 0 120px rgba(99, 102, 241, 0.4));
-                transform: scale(1.03);
-            }
-        }
-
-        .tagline {
-            margin-top: 40px;
-            z-index: 10;
-            text-align: center;
-            animation: fadeInUp 1s ease-out 0.8s both;
-        }
-
-        .tagline h2 {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 8px;
-            letter-spacing: -0.02em;
-        }
-
-        .tagline p {
-            font-size: 14px;
-            color: var(--text-tertiary);
-            font-weight: 400;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── Right Side (60%) ── */
-        .login-right {
-            background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 100%);
+        /* ── Left Side (45%) - Brand & Mascot ── */
+        .login-left {
+            background: linear-gradient(135deg, 
+                rgba(9, 9, 11, 0.95) 0%, 
+                rgba(18, 18, 21, 0.9) 50%, 
+                rgba(26, 26, 31, 0.85) 100%);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 40px;
             position: relative;
             overflow: hidden;
+            border-right: 1px solid var(--border-subtle);
+            z-index: 1;
         }
 
-        /* Ticker Tape on Login Page */
+        /* Dojo-inspired geometric pattern */
+        .dojo-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(45deg, 
+                    var(--accent-primary) 0px, 
+                    var(--accent-primary) 1px, 
+                    transparent 1px, 
+                    transparent 12px),
+                repeating-linear-gradient(-45deg, 
+                    var(--accent-primary) 0px, 
+                    var(--accent-primary) 1px, 
+                    transparent 1px, 
+                    transparent 12px);
+            pointer-events: none;
+        }
+
+        /* Ambient lighting effects */
+        .ambient-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            animation: ambientFloat 12s ease-in-out infinite;
+        }
+
+        .ambient-glow-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+            top: -100px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+
+        .ambient-glow-2 {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, transparent 70%);
+            bottom: -80px;
+            right: -120px;
+            animation-delay: -6s;
+        }
+
+        .ambient-glow-3 {
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
+            top: 40%;
+            left: 30%;
+            animation-delay: -3s;
+        }
+
+        @keyframes ambientFloat {
+            0%, 100% { 
+                transform: translate(0, 0) scale(1);
+                opacity: 0.3;
+            }
+            33% { 
+                transform: translate(30px, -40px) scale(1.08);
+                opacity: 0.4;
+            }
+            66% { 
+                transform: translate(-20px, 30px) scale(0.95);
+                opacity: 0.35;
+            }
+        }
+
+        /* Mascot container with refined presentation */
+        .mascot-wrapper {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: mascotEnter 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        @keyframes mascotEnter {
+            from { 
+                opacity: 0; 
+                transform: scale(0.9) translateY(40px) rotate(-3deg);
+                filter: blur(10px);
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0) rotate(0);
+                filter: blur(0);
+            }
+        }
+
+        .brand-logo {
+            width: 340px;
+            height: auto;
+            /* Refined mascot styling: smoother shading, subtle rim-light */
+            filter: 
+                drop-shadow(0 0 50px rgba(99, 102, 241, 0.4))
+                drop-shadow(0 0 90px rgba(99, 102, 241, 0.25))
+                drop-shadow(0 8px 32px rgba(0, 0, 0, 0.5))
+                brightness(1.05)
+                contrast(1.02);
+            animation: logoPulse 5s ease-in-out infinite 1.2s;
+            transition: filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .brand-logo:hover {
+            filter: 
+                drop-shadow(0 0 70px rgba(99, 102, 241, 0.6))
+                drop-shadow(0 0 120px rgba(99, 102, 241, 0.35))
+                drop-shadow(0 12px 48px rgba(0, 0, 0, 0.6))
+                brightness(1.1)
+                contrast(1.05);
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { 
+                filter: 
+                    drop-shadow(0 0 50px rgba(99, 102, 241, 0.4))
+                    drop-shadow(0 0 90px rgba(99, 102, 241, 0.25))
+                    drop-shadow(0 8px 32px rgba(0, 0, 0, 0.5))
+                    brightness(1.05)
+                    contrast(1.02);
+                transform: scale(1) translateY(0);
+            }
+            50% { 
+                filter: 
+                    drop-shadow(0 0 70px rgba(99, 102, 241, 0.55))
+                    drop-shadow(0 0 110px rgba(99, 102, 241, 0.3))
+                    drop-shadow(0 10px 40px rgba(0, 0, 0, 0.55))
+                    brightness(1.08)
+                    contrast(1.03);
+                transform: scale(1.02) translateY(-8px);
+            }
+        }
+
+        /* Brand messaging */
+        .brand-message {
+            margin-top: 48px;
+            text-align: center;
+            z-index: 10;
+            animation: fadeInUp 1s ease-out 0.6s both;
+            max-width: 380px;
+        }
+
+        .brand-message h2 {
+            font-size: 26px;
+            font-weight: 800;
+            background: linear-gradient(135deg, 
+                #ffffff 0%, 
+                #e0e7ff 40%, 
+                #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+
+        .brand-message p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            line-height: 1.6;
+            letter-spacing: 0.01em;
+        }
+
+        @keyframes fadeInUp {
+            from { 
+                opacity: 0; 
+                transform: translateY(24px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
+        }
+
+        /* Animated candlestick chart motif */
+        .chart-motif {
+            position: absolute;
+            bottom: 48px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+            opacity: 0.5;
+        }
+
+        .motif-candle {
+            width: 6px;
+            border-radius: 2px;
+            animation: motifGlow 4s ease-in-out infinite;
+            position: relative;
+        }
+
+        .motif-candle::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 8px;
+            background: inherit;
+            opacity: 0.6;
+        }
+
+        .motif-candle.bullish {
+            background: linear-gradient(180deg, 
+                var(--accent-success) 0%, 
+                #059669 100%);
+            box-shadow: 0 0 16px var(--accent-success-glow);
+        }
+
+        .motif-candle.bearish {
+            background: linear-gradient(180deg, 
+                var(--accent-danger) 0%, 
+                #dc2626 100%);
+            box-shadow: 0 0 16px var(--accent-danger-glow);
+        }
+
+        .motif-candle:nth-child(1) { height: 52px; animation-delay: 0s; }
+        .motif-candle:nth-child(2) { height: 36px; animation-delay: -0.8s; }
+        .motif-candle:nth-child(3) { height: 68px; animation-delay: -1.6s; }
+        .motif-candle:nth-child(4) { height: 44px; animation-delay: -2.4s; }
+        .motif-candle:nth-child(5) { height: 60px; animation-delay: -3.2s; }
+        .motif-candle:nth-child(6) { height: 40px; animation-delay: -4.0s; }
+
+        @keyframes motifGlow {
+            0%, 100% { 
+                opacity: 0.4;
+                filter: brightness(1);
+            }
+            50% { 
+                opacity: 0.75;
+                filter: brightness(1.2);
+            }
+        }
+
+        /* ── Right Side (55%) - Login Form ── */
+        .login-right {
+            background: linear-gradient(135deg, 
+                rgba(9, 9, 11, 0.98) 0%, 
+                rgba(18, 18, 21, 0.95) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 56px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ticker Tape Container */
         .login-tape-container {
             width: 100%;
-            max-width: 800px;
-            margin-bottom: 40px;
-            animation: fadeInDown 1s ease-out 0.3s both;
+            max-width: 720px;
+            margin-bottom: 48px;
+            animation: slideInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
         }
 
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slideInDown {
+            from { 
+                opacity: 0; 
+                transform: translateY(-24px);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0);
+            }
         }
 
         .ticker-tape-wrapper {
             position: relative;
-            background: rgba(24, 24, 27, 0.6);
-            backdrop-filter: blur(16px);
-            border-radius: 12px;
-            border: 1px solid rgba(99, 102, 241, 0.15);
+            background: rgba(24, 24, 27, 0.7);
+            backdrop-filter: blur(20px);
+            border-radius: 14px;
+            border: 1px solid rgba(99, 102, 241, 0.18);
             overflow: hidden;
             box-shadow: 
-                0 4px 24px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                0 4px 28px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(99, 102, 241, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .ticker-tape-inner-glow {
@@ -256,9 +387,9 @@
             height: 1px;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(99, 102, 241, 0.6), 
-                rgba(168, 85, 247, 0.4), 
-                rgba(99, 102, 241, 0.6), 
+                rgba(99, 102, 241, 0.7), 
+                rgba(168, 85, 247, 0.5), 
+                rgba(99, 102, 241, 0.7), 
                 transparent);
             z-index: 3;
         }
@@ -272,7 +403,7 @@
             height: 1px;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(99, 102, 241, 0.3), 
+                rgba(99, 102, 241, 0.35), 
                 transparent);
             z-index: 3;
         }
@@ -285,9 +416,9 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(99, 102, 241, 0.08), 
+                rgba(99, 102, 241, 0.1), 
                 transparent);
-            animation: shimmer 4s ease-in-out infinite;
+            animation: shimmer 5s ease-in-out infinite;
             pointer-events: none;
             z-index: 2;
         }
@@ -300,16 +431,16 @@
 
         .ticker-tape {
             position: relative;
-            padding: 12px 0;
+            padding: 13px 0;
             overflow: hidden;
             z-index: 1;
         }
 
         .ticker-content {
             display: flex;
-            gap: 24px;
+            gap: 28px;
             white-space: nowrap;
-            animation: scrollLeft 30s linear infinite;
+            animation: scrollLeft 32s linear infinite;
         }
 
         .ticker-content:hover {
@@ -330,107 +461,124 @@
 
         .ticker-separator {
             color: var(--accent-primary);
-            opacity: 0.6;
+            opacity: 0.7;
             font-weight: 600;
         }
 
         .ticker-tape-wrapper:hover {
-            border-color: rgba(99, 102, 241, 0.3);
+            border-color: rgba(99, 102, 241, 0.35);
             box-shadow: 
-                0 4px 32px rgba(0, 0, 0, 0.4),
-                0 0 40px rgba(99, 102, 241, 0.1),
+                0 6px 36px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(99, 102, 241, 0.1),
+                0 0 50px rgba(99, 102, 241, 0.08),
                 inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* Subtle decorative elements on right side */
-        .login-right::before {
-            content: '';
-            position: absolute;
-            top: -150px;
-            right: -150px;
-            width: 400px;
-            height: 400px;
-            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .login-right::after {
-            content: '';
-            position: absolute;
-            bottom: -100px;
-            left: -100px;
-            width: 350px;
-            height: 350px;
-            background: radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, transparent 70%);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
+        /* Login Card */
         .login-card {
             width: 100%;
-            max-width: 420px;
-            background: rgba(24, 24, 27, 0.8);
-            backdrop-filter: blur(24px);
-            padding: 48px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 440px;
+            background: rgba(24, 24, 27, 0.85);
+            backdrop-filter: blur(28px);
+            padding: 52px;
+            border-radius: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.09);
             box-shadow: 
-                0 4px 32px rgba(0, 0, 0, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.06);
-            animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+                0 8px 40px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(99, 102, 241, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.07);
+            animation: cardSlideIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
 
-        @keyframes cardIn {
-            from { opacity: 0; transform: translateX(40px); }
-            to { opacity: 1; transform: translateX(0); }
+        /* Subtle corner accents on card */
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            width: 40px;
+            height: 40px;
+            border-top: 2px solid rgba(99, 102, 241, 0.4);
+            border-left: 2px solid rgba(99, 102, 241, 0.4);
+            border-radius: 22px 0 0 0;
+            pointer-events: none;
+        }
+
+        .login-card::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            right: -1px;
+            width: 40px;
+            height: 40px;
+            border-bottom: 2px solid rgba(99, 102, 241, 0.4);
+            border-right: 2px solid rgba(99, 102, 241, 0.4);
+            border-radius: 0 0 22px 0;
+            pointer-events: none;
+        }
+
+        @keyframes cardSlideIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(48px) scale(0.98);
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0) scale(1);
+            }
         }
 
         .login-header {
-            margin-bottom: 32px;
+            margin-bottom: 36px;
         }
 
         .login-header h1 {
-            font-size: 28px;
+            font-size: 30px;
             font-weight: 800;
             color: var(--text-primary);
-            letter-spacing: -0.025em;
-            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, 
+                var(--text-primary) 0%, 
+                #e0e7ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .login-header p {
             font-size: 15px;
-            color: var(--text-tertiary);
+            color: var(--text-secondary);
+            line-height: 1.5;
         }
 
-        /* ── Form Items ── */
+        /* Form Styling */
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 26px;
         }
 
         .form-group label {
             display: block;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             color: var(--text-secondary);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.1em;
+            transition: color 0.2s ease;
         }
 
         .form-input {
             width: 100%;
-            padding: 14px 16px;
-            background: rgba(39, 39, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+            padding: 15px 18px;
+            background: rgba(39, 39, 42, 0.65);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 12px;
             font-size: 15px;
             color: var(--text-primary);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             outline: none;
             font-family: 'Inter', sans-serif;
         }
@@ -440,29 +588,42 @@
         }
 
         .form-input:focus {
-            background: rgba(39, 39, 42, 0.9);
+            background: rgba(39, 39, 42, 0.95);
             border-color: var(--accent-primary);
             box-shadow: 
-                0 0 0 3px rgba(99, 102, 241, 0.15),
-                0 4px 12px rgba(99, 102, 241, 0.1);
+                0 0 0 3px rgba(99, 102, 241, 0.18),
+                0 6px 20px rgba(99, 102, 241, 0.15),
+                0 0 40px rgba(99, 102, 241, 0.08);
         }
 
+        .form-input:focus + label,
+        .form-group:focus-within label {
+            color: var(--accent-primary);
+        }
+
+        /* CTA Button - High clarity with glowing edge */
         .login-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, var(--accent-primary) 0%, #4f46e5 100%);
+            padding: 16px;
+            background: linear-gradient(135deg, 
+                var(--accent-primary) 0%, 
+                #4f46e5 50%, 
+                #4338ca 100%);
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 15px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 
-                0 4px 16px rgba(99, 102, 241, 0.35),
-                0 0 0 0 rgba(99, 102, 241, 0);
+                0 4px 18px rgba(99, 102, 241, 0.4),
+                0 0 0 0 rgba(99, 102, 241, 0),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
             position: relative;
             overflow: hidden;
+            letter-spacing: 0.02em;
+            text-transform: none;
         }
 
         .login-btn::before {
@@ -472,16 +633,42 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.25), 
+                transparent);
+            transition: left 0.6s ease;
+        }
+
+        .login-btn::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.5), 
+                rgba(168, 85, 247, 0.3), 
+                rgba(99, 102, 241, 0.5));
+            border-radius: 14px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .login-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px);
             box-shadow: 
-                0 8px 24px rgba(99, 102, 241, 0.45),
-                0 0 20px rgba(99, 102, 241, 0.2);
+                0 10px 32px rgba(99, 102, 241, 0.5),
+                0 0 0 0 rgba(99, 102, 241, 0),
+                0 0 50px rgba(99, 102, 241, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             filter: brightness(1.08);
+        }
+
+        .login-btn:hover::after {
+            opacity: 0.6;
         }
 
         .login-btn:hover::before {
@@ -489,104 +676,216 @@
         }
 
         .login-btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 6px 24px rgba(99, 102, 241, 0.45),
+                0 0 40px rgba(99, 102, 241, 0.2);
         }
 
+        .login-btn:focus-visible {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 3px;
+        }
+
+        /* Footer */
         .login-footer {
-            margin-top: 32px;
+            margin-top: 36px;
             text-align: center;
             font-size: 13px;
             color: var(--text-tertiary);
+            line-height: 1.5;
         }
 
         .login-footer a {
             color: var(--accent-primary);
             text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            font-weight: 600;
+            transition: all 0.25s ease;
+            position: relative;
+        }
+
+        .login-footer a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--accent-primary);
+            transition: width 0.25s ease;
         }
 
         .login-footer a:hover {
-            text-decoration: underline;
             color: #818cf8;
         }
 
-        /* ── Responsive ── */
-        @media (max-width: 900px) {
+        .login-footer a:hover::after {
+            width: 100%;
+        }
+
+        /* Decorative elements on right side */
+        .right-decoration {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.25;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .right-decoration-1 {
+            width: 380px;
+            height: 380px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.35) 0%, transparent 70%);
+            top: -120px;
+            right: -140px;
+            animation: rightFloat1 10s ease-in-out infinite;
+        }
+
+        .right-decoration-2 {
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.28) 0%, transparent 70%);
+            bottom: -100px;
+            left: -100px;
+            animation: rightFloat2 11s ease-in-out infinite;
+        }
+
+        @keyframes rightFloat1 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-25px, 35px) scale(1.06); }
+        }
+
+        @keyframes rightFloat2 {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -25px) scale(0.96); }
+        }
+
+        /* ── Responsive Design ── */
+        @media (max-width: 1024px) {
             body {
                 grid-template-columns: 1fr;
-                grid-template-rows: 320px 1fr;
+                grid-template-rows: auto 1fr;
             }
 
             .login-left {
                 border-right: none;
                 border-bottom: 1px solid var(--border-subtle);
+                padding: 40px 24px;
+                min-height: 340px;
             }
 
             .brand-logo {
-                width: 200px;
+                width: 220px;
             }
 
-            .tagline h2 {
-                font-size: 18px;
+            .brand-message h2 {
+                font-size: 20px;
             }
 
-            .tagline p {
+            .brand-message p {
                 font-size: 13px;
             }
 
-            .candlestick-container {
+            .chart-motif {
                 display: none;
             }
 
             .login-right {
-                padding: 24px;
+                padding: 40px 28px;
             }
 
             .login-card {
-                padding: 32px;
-                box-shadow: none;
-                background: rgba(24, 24, 27, 0.8);
-                backdrop-filter: blur(24px);
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 40px 32px;
             }
 
             .login-tape-container {
-                margin-bottom: 24px;
+                margin-bottom: 36px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .login-left {
+                padding: 32px 20px;
+                min-height: 280px;
+            }
+
+            .brand-logo {
+                width: 180px;
+            }
+
+            .brand-message {
+                margin-top: 32px;
+            }
+
+            .brand-message h2 {
+                font-size: 18px;
+            }
+
+            .login-right {
+                padding: 32px 20px;
+            }
+
+            .login-card {
+                padding: 36px 24px;
+                max-width: 100%;
+            }
+
+            .login-header h1 {
+                font-size: 26px;
+            }
+
+            .ticker-tape-wrapper {
+                border-radius: 10px;
+            }
+
+            .ticker-content {
+                gap: 20px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- Left Section: Brand & Atmosphere -->
+    <!-- Left Section: Brand & Mascot -->
     <aside class="login-left">
-        <!-- Floating Orbs -->
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
+        <!-- Dojo Pattern Background -->
+        <div class="dojo-pattern"></div>
         
-        <!-- Brand Logo -->
-        <img src="assets/images/Logo.gif" alt="DojiDash Logo" class="brand-logo">
+        <!-- Ambient Lighting -->
+        <div class="ambient-glow ambient-glow-1"></div>
+        <div class="ambient-glow ambient-glow-2"></div>
+        <div class="ambient-glow ambient-glow-3"></div>
         
-        <!-- Tagline -->
-        <div class="tagline">
-            <h2>Master Your Trading Intuition</h2>
-            <p>Learn. Practice. Conquer the Markets.</p>
+        <!-- Mascot Wrapper -->
+        <div class="mascot-wrapper">
+            <!-- Brand Logo with refined styling -->
+            <img src="assets/images/Logo.gif" alt="DojiDash Mascot" class="brand-logo">
+            
+            <!-- Brand Message -->
+            <div class="brand-message">
+                <h2>Master Your Trading Intuition</h2>
+                <p>Learn. Practice. Conquer the Markets with disciplined, gamified mastery.</p>
+            </div>
         </div>
         
-        <!-- Animated Candlesticks -->
-        <div class="candlestick-container">
-            <div class="candlestick bullish"></div>
-            <div class="candlestick bearish"></div>
-            <div class="candlestick bullish"></div>
-            <div class="candlestick bearish"></div>
-            <div class="candlestick bullish"></div>
+        <!-- Animated Candlestick Chart Motif -->
+        <div class="chart-motif">
+            <div class="motif-candle bullish"></div>
+            <div class="motif-candle bearish"></div>
+            <div class="motif-candle bullish"></div>
+            <div class="motif-candle bearish"></div>
+            <div class="motif-candle bullish"></div>
+            <div class="motif-candle bearish"></div>
         </div>
     </aside>
 
     <!-- Right Section: Login Interaction -->
     <main class="login-right">
+        <!-- Decorative Elements -->
+        <div class="right-decoration right-decoration-1"></div>
+        <div class="right-decoration right-decoration-2"></div>
+        
         <!-- Ticker Tape -->
         <div class="login-tape-container">
             <div class="ticker-tape-wrapper">
@@ -629,8 +928,8 @@
         
         <div class="login-card">
             <header class="login-header">
-                <h1>Welcome back</h1>
-                <p>Enter your name to start your training session.</p>
+                <h1>Welcome back, Trader</h1>
+                <p>Enter your username to begin your trading mastery journey.</p>
             </header>
 
             <form id="loginForm">
@@ -640,7 +939,7 @@
                         type="text" 
                         id="usernameInput" 
                         class="form-input" 
-                        placeholder="e.g. DiamondHands" 
+                        placeholder="Choose your trader identity" 
                         required 
                         autocomplete="off"
                         autofocus
@@ -648,24 +947,24 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="passwordInput">Password (Optional / Demo)</label>
+                    <label for="passwordInput">Password (Optional)</label>
                     <input 
                         type="password" 
                         id="passwordInput" 
                         class="form-input" 
-                        placeholder="••••••••" 
+                        placeholder="Not required for demo" 
                         disabled
                     >
-                    <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 6px;">Fake login for demo purposes. Password is not required.</p>
+                    <p style="font-size: 11px; color: var(--text-tertiary); margin-top: 8px; line-height: 1.4;">Demo mode enabled. Password authentication is optional.</p>
                 </div>
 
                 <button type="submit" class="login-btn">
-                    Secure Entry
+                    Enter the Dojo
                 </button>
             </form>
 
             <footer class="login-footer">
-                <p>New to the Dojo? <a href="#">Learn about our mission</a></p>
+                <p>New to the Dojo? <a href="#">Discover our mission</a></p>
             </footer>
         </div>
     </main>
