@@ -154,17 +154,23 @@ function render() {
   const key = `${unit.id}-${currentQuestionIndex}`;
   const alreadyAnswered = answeredQuestions[key] !== undefined;
 
-  // Update progress
-  document.getElementById('progressBar').style.width = ((currentQuestionIndex) / totalQuestions * 100) + '%';
-  document.getElementById('progressText').textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-  
-  // Update streak badge (simplified)
-  const streakCount = Object.values(answeredQuestions).filter(v => v).length;
-  document.getElementById('streakBadge').textContent = `🔥 ${streakCount} correct`;
-
   // Render question
   const app = document.getElementById('app');
   app.innerHTML = '';
+
+  // Update progress (after HTML is rendered)
+  setTimeout(() => {
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const streakBadge = document.getElementById('streakBadge');
+    
+    if (progressBar) progressBar.style.width = ((currentQuestionIndex) / totalQuestions * 100) + '%';
+    if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+    
+    // Update streak badge (simplified)
+    const streakCount = Object.values(answeredQuestions).filter(v => v).length;
+    if (streakBadge) streakBadge.textContent = `🔥 ${streakCount} correct`;
+  }, 0);
 
   // HUD
   const hud = document.createElement('div');
