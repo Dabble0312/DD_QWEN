@@ -158,21 +158,8 @@ function render() {
   const app = document.getElementById('app');
   app.innerHTML = '';
 
-  // Update progress (after HTML is rendered)
-  setTimeout(() => {
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const streakBadge = document.getElementById('streakBadge');
-    
-    if (progressBar) progressBar.style.width = ((currentQuestionIndex) / totalQuestions * 100) + '%';
-    if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
-    
-    // Update streak badge (simplified)
-    const streakCount = Object.values(answeredQuestions).filter(v => v).length;
-    if (streakBadge) streakBadge.textContent = `🔥 ${streakCount} correct`;
-  }, 0);
-
   // HUD
+  const streakCount = Object.values(answeredQuestions).filter(v => v).length;
   const hud = document.createElement('div');
   hud.className = 'hud';
   hud.innerHTML = `
@@ -186,6 +173,20 @@ function render() {
   progressWrap.className = 'progress-bar-wrap';
   progressWrap.innerHTML = `<div class="progress-bar" id="progressBar" style="width: ${(currentQuestionIndex) / totalQuestions * 100}%"></div>`;
   app.appendChild(progressWrap);
+
+  // Update progress (after HTML is rendered)
+  setTimeout(() => {
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const streakBadge = document.getElementById('streakBadge');
+    
+    if (progressBar) progressBar.style.width = ((currentQuestionIndex) / totalQuestions * 100) + '%';
+    if (progressText) progressText.textContent = `Question ${currentQuestionIndex + 1} of ${totalQuestions}`;
+    
+    // Update streak badge
+    const currentStreak = Object.values(answeredQuestions).filter(v => v).length;
+    if (streakBadge) streakBadge.textContent = `🔥 ${currentStreak} correct`;
+  }, 0);
 
   // Unit badges
   const badgesRow = document.createElement('div');
