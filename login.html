@@ -16,7 +16,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     
     <style>
-        /* Login Page - Dark Theme */
+        /* Login Page - Premium Dark Theme */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -33,10 +33,11 @@
             overflow: hidden;
         }
 
-        /* ── Left Side (40%) ── */
+        /* ── Left Side (40%) - Creative Trading Atmosphere ── */
         .login-left {
-            background: linear-gradient(135deg, #09090b 0%, #121217 100%);
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 50%, #0f0f1a 100%);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
@@ -44,32 +45,170 @@
             border-right: 1px solid var(--border-subtle);
         }
 
-        /* Abstract background texture */
+        /* Animated grid background */
         .login-left::before {
             content: '';
             position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at 30% 30%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
-            animation: pulse 8s ease-in-out infinite alternate;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.5; }
-            100% { transform: scale(1.1); opacity: 0.8; }
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating orbs for depth */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.4;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+            top: -50px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+            bottom: -50px;
+            right: -80px;
+            animation-delay: -4s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.2) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -2s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(20px, -30px) scale(1.05); }
+            50% { transform: translate(-15px, 20px) scale(0.95); }
+            75% { transform: translate(25px, 15px) scale(1.02); }
+        }
+
+        /* Candlestick decorations */
+        .candlestick-container {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 5;
+            opacity: 0.6;
+        }
+
+        .candlestick {
+            width: 8px;
+            border-radius: 2px;
+            animation: candleGlow 3s ease-in-out infinite;
+        }
+
+        .candlestick.bullish {
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .candlestick.bearish {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .candlestick:nth-child(1) { height: 60px; animation-delay: 0s; }
+        .candlestick:nth-child(2) { height: 40px; animation-delay: -0.5s; }
+        .candlestick:nth-child(3) { height: 80px; animation-delay: -1s; }
+        .candlestick:nth-child(4) { height: 50px; animation-delay: -1.5s; }
+        .candlestick:nth-child(5) { height: 70px; animation-delay: -2s; }
+
+        @keyframes candleGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.8; }
         }
 
         .brand-logo {
-            width: 280px;
+            width: 320px;
             height: auto;
             z-index: 10;
-            filter: drop-shadow(0 0 30px rgba(99, 102, 241, 0.3));
-            animation: logoIn 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.5)) 
+                    drop-shadow(0 0 80px rgba(99, 102, 241, 0.3));
+            animation: logoIn 1.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                       logoPulse 4s ease-in-out infinite 1.4s;
         }
 
         @keyframes logoIn {
-            from { opacity: 0; transform: scale(0.9) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from { 
+                opacity: 0; 
+                transform: scale(0.85) translateY(30px) rotate(-5deg); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0) rotate(0); 
+            }
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { 
+                filter: drop-shadow(0 0 40px rgba(99, 102, 241, 0.5)) 
+                        drop-shadow(0 0 80px rgba(99, 102, 241, 0.3));
+                transform: scale(1);
+            }
+            50% { 
+                filter: drop-shadow(0 0 60px rgba(99, 102, 241, 0.7)) 
+                        drop-shadow(0 0 120px rgba(99, 102, 241, 0.4));
+                transform: scale(1.03);
+            }
+        }
+
+        .tagline {
+            margin-top: 40px;
+            z-index: 10;
+            text-align: center;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+
+        .tagline h2 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline p {
+            font-size: 14px;
+            color: var(--text-tertiary);
+            font-weight: 400;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ── Right Side (60%) ── */
@@ -82,22 +221,35 @@
             position: relative;
         }
 
+        /* Subtle decorative elements on right side */
+        .login-right::before {
+            content: '';
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
         .login-card {
             width: 100%;
             max-width: 420px;
-            background: rgba(24, 24, 27, 0.6);
-            backdrop-filter: blur(20px);
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(24px);
             padding: 48px;
             border-radius: 20px;
-            border: 1px solid var(--border-subtle);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 
-                0 4px 24px rgba(0, 0, 0, 0.3),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) delay 0.2s both;
+                0 4px 32px rgba(0, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+            animation: cardIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
         }
 
         @keyframes cardIn {
-            from { opacity: 0; transform: translateX(30px); }
+            from { opacity: 0; transform: translateX(40px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
@@ -136,12 +288,12 @@
         .form-input {
             width: 100%;
             padding: 14px 16px;
-            background: rgba(39, 39, 42, 0.5);
-            border: 1px solid var(--border-subtle);
+            background: rgba(39, 39, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 10px;
             font-size: 15px;
             color: var(--text-primary);
-            transition: all 0.2s ease;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             outline: none;
             font-family: 'Inter', sans-serif;
         }
@@ -151,29 +303,52 @@
         }
 
         .form-input:focus {
-            background: rgba(39, 39, 42, 0.8);
+            background: rgba(39, 39, 42, 0.9);
             border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+            box-shadow: 
+                0 0 0 3px rgba(99, 102, 241, 0.15),
+                0 4px 12px rgba(99, 102, 241, 0.1);
         }
 
         .login-btn {
             width: 100%;
             padding: 14px;
-            background: var(--accent-primary);
+            background: linear-gradient(135deg, var(--accent-primary) 0%, #4f46e5 100%);
             color: white;
             border: none;
             border-radius: 10px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 
+                0 4px 16px rgba(99, 102, 241, 0.35),
+                0 0 0 0 rgba(99, 102, 241, 0);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
         }
 
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-            filter: brightness(1.1);
+            box-shadow: 
+                0 8px 24px rgba(99, 102, 241, 0.45),
+                0 0 20px rgba(99, 102, 241, 0.2);
+            filter: brightness(1.08);
+        }
+
+        .login-btn:hover::before {
+            left: 100%;
         }
 
         .login-btn:active {
@@ -191,21 +366,40 @@
             color: var(--accent-primary);
             text-decoration: none;
             font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .login-footer a:hover {
             text-decoration: underline;
+            color: #818cf8;
         }
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
             body {
                 grid-template-columns: 1fr;
-                grid-template-rows: 280px 1fr;
+                grid-template-rows: 320px 1fr;
+            }
+
+            .login-left {
+                border-right: none;
+                border-bottom: 1px solid var(--border-subtle);
             }
 
             .brand-logo {
-                width: 180px;
+                width: 200px;
+            }
+
+            .tagline h2 {
+                font-size: 18px;
+            }
+
+            .tagline p {
+                font-size: 13px;
+            }
+
+            .candlestick-container {
+                display: none;
             }
 
             .login-right {
@@ -217,6 +411,7 @@
                 box-shadow: none;
                 background: transparent;
                 border: none;
+                backdrop-filter: none;
             }
         }
     </style>
@@ -225,7 +420,28 @@
 
     <!-- Left Section: Brand & Atmosphere -->
     <aside class="login-left">
+        <!-- Floating Orbs -->
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        
+        <!-- Brand Logo -->
         <img src="assets/images/Logo.gif" alt="DojiDash Logo" class="brand-logo">
+        
+        <!-- Tagline -->
+        <div class="tagline">
+            <h2>Master Your Trading Intuition</h2>
+            <p>Learn. Practice. Conquer the Markets.</p>
+        </div>
+        
+        <!-- Animated Candlesticks -->
+        <div class="candlestick-container">
+            <div class="candlestick bullish"></div>
+            <div class="candlestick bearish"></div>
+            <div class="candlestick bullish"></div>
+            <div class="candlestick bearish"></div>
+            <div class="candlestick bullish"></div>
+        </div>
     </aside>
 
     <!-- Right Section: Login Interaction -->
