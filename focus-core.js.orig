@@ -328,9 +328,6 @@ function scorePendingPrediction() {
 
     updateHUD();    // focus-ui.js
 
-    // ★★★ CRITICAL FIX: Capture journal entry NOW, after scoring but before next round
-    captureTradeEntry();
-
     if (wrongCount >= MAX_WRONG) {
         setTimeout(() => endSession("focus_lost"), 1400);
         return;
