@@ -405,7 +405,7 @@ function captureTradeEntry() {
     window.JournalManager.addEntry(logEntry);
     
     console.log('[Journal] Trade captured:', logEntry);
-=======
+
     // Use the narrative text that was just generated/spoken
     // If the narrator hasn't finished, we might grab the latest partial, 
     // but ideally this is called right after the narrator starts or finishes.
