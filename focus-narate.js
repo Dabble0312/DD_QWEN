@@ -64,8 +64,12 @@ function toggleNarrator() {
     }
 }
 
+/**
+ * Run the narrator engine and return the generated script
+ * @returns {string|null} The generated narrative text, or null if narrator is inactive
+ */
 function runNarratorEngine() {
-    if (!narratorActive) return;
+    if (!narratorActive) return null;
 
     if (typeof getVisiblePatterns === 'function') {
         window.detectedPatterns = getVisiblePatterns();
@@ -75,12 +79,35 @@ function runNarratorEngine() {
     var history = (typeof allCandles    !== 'undefined' ? allCandles    : []);
     var burst   = (typeof revealedSoFar !== 'undefined' ? revealedSoFar : []);
 
-    if (history.length === 0 || burst.length === 0) return;
+    if (history.length === 0 || burst.length === 0) return null;
 
     var burstSize   = _getRevealCount();
     var recentBurst = burst.slice(-burstSize);
     var script      = _buildRevealScript(history, burst, recentBurst);
     _speak(script);
+    
+    return script;
+}
+
+/**
+ * Generate narrative text without speaking (for journal capture)
+ * @returns {string|null} The generated narrative text
+ */
+function generateNarrativeText() {
+    if (typeof getVisiblePatterns === 'function') {
+        window.detectedPatterns = getVisiblePatterns();
+    }
+
+    var history = (typeof allCandles    !== 'undefined' ? allCandles    : []);
+    var burst   = (typeof revealedSoFar !== 'undefined' ? revealedSoFar : []);
+
+    if (history.length === 0 || burst.length === 0) return null;
+
+    var burstSize   = _getRevealCount();
+    var recentBurst = burst.slice(-burstSize);
+    var script      = _buildRevealScript(history, burst, recentBurst);
+    
+    return _clean(_filterAndJoin(script));
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -47,6 +47,12 @@ let detectedPatterns = [];
 
 let username = localStorage.getItem("username") || "Player";
 
+// =========================
+// JOURNAL STATE
+// =========================
+let currentUserGuess = null;
+let currentPriceTarget = null;
+
 /* -----------------------------------------
    1. LOAD BLOCK FROM SUPABASE
 ----------------------------------------- */
@@ -209,13 +215,14 @@ function startAutoReveal() {
             setButtonState("guess");
             showStatus("What happens next?");
 
-             // --- ADD THE NARRATOR TRIGGER HERE ---
-        if (window.runNarratorEngine) {
-            runNarratorEngine();
-        }
-        // -------------------------------------
+            // Capture journal entry before narrator speaks
+            captureTradeEntry();
 
-      
+            // Trigger narrator
+            if (window.runNarratorEngine) {
+                runNarratorEngine();
+            }
+
             return;
         }
 
@@ -255,6 +262,10 @@ function handleGuess(guess) {
     const priceInput  = document.getElementById('priceTarget');
     const targetValue = priceInput ? parseFloat(priceInput.value) : NaN;
     if (priceInput) priceInput.value = '';
+
+    // Store current guess for journal
+    currentUserGuess = guess;
+    currentPriceTarget = targetValue;
 
     const burstEndIndex = Math.min(
         revealIndex + getRevealCount() - 1,
@@ -327,6 +338,45 @@ function scorePendingPrediction() {
     }
 
     setTimeout(() => { showStatus(""); }, 2000);
+}
+
+/* -----------------------------------------
+   6c. CAPTURE TRADE ENTRY FOR JOURNAL
+----------------------------------------- */
+function captureTradeEntry() {
+    if (!pendingPrediction || !chart || !window.JournalService) return;
+
+    const { candleIndex, baseClose } = pendingPrediction;
+    const predictedCandle = futureCandles[candleIndex];
+
+    // Get the actual data for the burst end candle
+    const actualData = {
+        close: predictedCandle.close,
+        open: predictedCandle.open,
+        high: predictedCandle.high,
+        low: predictedCandle.low
+    };
+
+    // Generate narrative text for journal (without speaking)
+    let narrativeText = '';
+    if (typeof generateNarrativeText === 'function') {
+        narrativeText = generateNarrativeText() || 'No analysis generated.';
+    }
+
+    // Capture with JournalService
+    window.JournalService.captureTradeEntry(
+        chart,
+        narrativeText,
+        { direction: currentUserGuess ? currentUserGuess.toUpperCase() : 'UNKNOWN', target: currentPriceTarget || 0 },
+        actualData,
+        'FOCUS_SESSION'
+    ).catch(err => {
+        console.error('[focus-core] Failed to capture trade entry:', err);
+    });
+
+    // Reset guess storage for next round
+    currentUserGuess = null;
+    currentPriceTarget = null;
 }
 
 /* -----------------------------------------
