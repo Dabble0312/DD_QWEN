@@ -433,7 +433,7 @@ function captureTradeEntry() {
     // But we clear the specific guess data used for this log
     // currentUserGuess = null; 
     // currentPriceTarget = null;
->>>>>>> f265487b7cd784c3d3b99137b76ac5d1f1923c79
+
 }
 
 /* -----------------------------------------
