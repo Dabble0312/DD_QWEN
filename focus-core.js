@@ -47,6 +47,13 @@ let detectedPatterns = [];
 
 let username = localStorage.getItem("username") || "Player";
 
+// =========================
+// JOURNAL STATE
+// =========================
+let currentUserGuess = null;
+let currentPriceTarget = null;
+let lastNarrativeText = ""; // Store the last generated narrative
+
 /* -----------------------------------------
    1. LOAD BLOCK FROM SUPABASE
 ----------------------------------------- */
@@ -87,9 +94,11 @@ async function loadFocusBlock() {
         showCandleInfo(null);   // focus-ui.js
         showPriceFeedback("");  // focus-ui.js
         showStatus("");
-        clearPatternHighlights();  // focus-patterns.js
-        hidePatternPanels();       // focus-patterns.js
-        clearDynamicZones();       // focus-patterns.js
+        
+        // Ensure these helpers exist before calling
+        if (typeof clearPatternHighlights === 'function') clearPatternHighlights();
+        if (typeof hidePatternPanels === 'function') hidePatternPanels();
+        if (typeof clearDynamicZones === 'function') clearDynamicZones();
 
     } catch (err) {
         console.error("Supabase Error:", err.message);
@@ -127,7 +136,11 @@ function initChart() {
 
     candlestickSeries = chart.addCandlestickSeries(CANDLESTICK_SERIES_OPTIONS);
     volumeSeries      = chart.addHistogramSeries(VOLUME_SERIES_OPTIONS);
-    chart.priceScale('volume').applyOptions(VOLUME_PRICE_SCALE_OPTIONS);
+    
+    // Check if volume price scale options exist
+    if (typeof VOLUME_PRICE_SCALE_OPTIONS !== 'undefined') {
+        chart.priceScale('volume').applyOptions(VOLUME_PRICE_SCALE_OPTIONS);
+    }
 
     renderChart();
 
@@ -135,7 +148,8 @@ function initChart() {
     candlestickSeries.applyOptions({ autoscaleInfoProvider: undefined });
 
     chart.timeScale().fitContent();
-    updateDynamicZones();   // focus-patterns.js — draws initial zones
+    
+    if (typeof updateDynamicZones === 'function') updateDynamicZones();
 
     // ── Candle click → update stats + info panel
     chart.subscribeClick((param) => {
@@ -145,20 +159,24 @@ function initChart() {
         const matched     = allVisible.find(c => c.date.slice(0, 10) === clickedDate);
         if (!matched) return;
 
-        updateStatsPanel(matched);   // focus-ui.js
-        showCandleInfo(matched);     // focus-ui.js
-        refreshSummaryIfOpen(matched); // focus-ui.js
+        if (typeof updateStatsPanel === 'function') updateStatsPanel(matched);
+        if (typeof showCandleInfo === 'function') showCandleInfo(matched);
+        if (typeof refreshSummaryIfOpen === 'function') refreshSummaryIfOpen(matched);
     });
 
     // ── Redraw zone overlays on viewport change
     chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
-        requestAnimationFrame(drawZoneOverlays);   // focus-patterns.js
+        requestAnimationFrame(() => {
+            if (typeof drawZoneOverlays === 'function') drawZoneOverlays();
+        });
     });
     chart.subscribeCrosshairMove(() => {
-        requestAnimationFrame(drawZoneOverlays);
+        requestAnimationFrame(() => {
+            if (typeof drawZoneOverlays === 'function') drawZoneOverlays();
+        });
     });
 
-    setupZoneCanvas(chartDiv);   // focus-patterns.js
+    if (typeof setupZoneCanvas === 'function') setupZoneCanvas(chartDiv);
 }
 
 /* -----------------------------------------
@@ -166,8 +184,12 @@ function initChart() {
 ----------------------------------------- */
 function renderChart() {
     const all        = [...allCandles, ...revealedSoFar];
-    candlestickSeries.setData(all.map(toCandlePoint));   // shared/chart.js
-    volumeSeries.setData(all.map(toVolumePoint));        // shared/chart.js
+    if (typeof toCandlePoint === 'function') {
+        candlestickSeries.setData(all.map(toCandlePoint));
+    }
+    if (typeof toVolumePoint === 'function') {
+        volumeSeries.setData(all.map(toVolumePoint));
+    }
 }
 
 /* -----------------------------------------
@@ -182,8 +204,12 @@ function resetSession() {
     sessionActive    = true;
 
     pendingPrediction = null;
-    updateHUD();             // focus-ui.js
-    setButtonState("reveal"); // focus-ui.js
+    currentUserGuess = null;
+    currentPriceTarget = null;
+    lastNarrativeText = "";
+
+    if (typeof updateHUD === 'function') updateHUD();
+    if (typeof setButtonState === 'function') setButtonState("reveal");
 }
 
 /* -----------------------------------------
@@ -197,7 +223,7 @@ function startAutoReveal() {
     }
 
     autoRevealActive = true;
-    setButtonState("revealing");
+    if (typeof setButtonState === 'function') setButtonState("revealing");
 
     let count = 0;
     const maxThisBurst = getRevealCount();
@@ -206,16 +232,17 @@ function startAutoReveal() {
         if (count >= maxThisBurst || revealIndex >= futureCandles.length) {
             autoRevealActive = false;
             awaitingGuess    = true;
-            setButtonState("guess");
+            if (typeof setButtonState === 'function') setButtonState("guess");
             showStatus("What happens next?");
 
-             // --- ADD THE NARRATOR TRIGGER HERE ---
-        if (window.runNarratorEngine) {
-            runNarratorEngine();
-        }
-        // -------------------------------------
+            // Capture journal entry BEFORE narrator speaks so we have the snapshot of the reveal
+            captureTradeEntry();
 
-      
+            // Trigger narrator
+            if (typeof runNarratorEngine === 'function') {
+                runNarratorEngine();
+            }
+
             return;
         }
 
@@ -227,8 +254,8 @@ function startAutoReveal() {
 
         renderChart();
        
-        updateStatsPanel();      // focus-ui.js
-        updateDynamicZones();    // focus-patterns.js
+        if (typeof updateStatsPanel === 'function') updateStatsPanel();
+        if (typeof updateDynamicZones === 'function') updateDynamicZones();
 
         if (pendingPrediction && pendingPrediction.candleIndex === thisIndex) {
             scorePendingPrediction();
@@ -256,6 +283,10 @@ function handleGuess(guess) {
     const targetValue = priceInput ? parseFloat(priceInput.value) : NaN;
     if (priceInput) priceInput.value = '';
 
+    // Store current guess for journal
+    currentUserGuess = guess;
+    currentPriceTarget = targetValue;
+
     const burstEndIndex = Math.min(
         revealIndex + getRevealCount() - 1,
         futureCandles.length - 1
@@ -269,14 +300,15 @@ function handleGuess(guess) {
         targetPrice:  targetValue,
         candleIndex:  burstEndIndex,
         baseClose:    baselineClose,
+        direction:    guess.toUpperCase() // Ensure direction is stored
     };
 
     showStatus("Reveal to see if you were right!");
-    setButtonState("reveal");
+    if (typeof setButtonState === 'function') setButtonState("reveal");
 }
 
 /* -----------------------------------------
-   6b. SCORE PENDING PREDICTION
+   6b. SCORE PENDING PREDICTION (UPDATED)
 ----------------------------------------- */
 unction scorePendingPrediction() {
     if (!pendingPrediction) return;
@@ -325,10 +357,18 @@ unction scorePendingPrediction() {
 
     pendingPrediction = null;
 }
+
+
+    pendingPrediction = null;
+}
 /* -----------------------------------------
-   7. END SESSION
+   7. END SESSION (UPDATED)
 ----------------------------------------- */
+
+async function endSession(reason) {
+
 ync function endSession(reason) {
+main
     sessionActive    = false;
     autoRevealActive = false;
     awaitingGuess    = false;
@@ -371,12 +411,12 @@ ync function endSession(reason) {
         showMissionReportModal(accuracy, reason);
     }, 1000);
 }
-
 /* -----------------------------------------
-   8. KEYBOARD SHORTCUTS (Phase 5)
-   ArrowUp = UP guess, ArrowDown = DOWN guess
+   8. KEYBOARD SHORTCUTS
 ----------------------------------------- */
 window.addEventListener('keydown', (e) => {
+    if (!sessionActive || awaitingGuess === false && autoRevealActive === false) return;
+    
     if (e.key === 'ArrowUp')   { e.preventDefault(); handleGuess('up');   }
     if (e.key === 'ArrowDown') { e.preventDefault(); handleGuess('down'); }
 });
@@ -390,13 +430,28 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // ── Bind button listeners
     const el = id => document.getElementById(id);
-    if (el('narratorBtn')) el('narratorBtn').addEventListener('click', toggleNarrator);
-    if (el('revealBtn'))               el('revealBtn').addEventListener('click', startAutoReveal);
-    if (el('upBtn'))                   el('upBtn').addEventListener('click', () => handleGuess('up'));
-    if (el('downBtn'))                 el('downBtn').addEventListener('click', () => handleGuess('down'));
-    if (el('togglePatternsBtn'))       el('togglePatternsBtn').addEventListener('click', togglePatterns);
-    if (el('togglePatternExplainBtn')) el('togglePatternExplainBtn').addEventListener('click', togglePatternExplain);
-    if (el('summaryToggleBtn'))        el('summaryToggleBtn').addEventListener('click', toggleSummary);
+    
+    // Safe binding: only bind if element exists
+    if (el('narratorBtn')) el('narratorBtn').addEventListener('click', () => {
+        if (typeof toggleNarrator === 'function') toggleNarrator();
+    });
+    
+    if (el('revealBtn')) el('revealBtn').addEventListener('click', startAutoReveal);
+    
+    if (el('upBtn')) el('upBtn').addEventListener('click', () => handleGuess('up'));
+    if (el('downBtn')) el('downBtn').addEventListener('click', () => handleGuess('down'));
+    
+    if (el('togglePatternsBtn')) el('togglePatternsBtn').addEventListener('click', () => {
+        if (typeof togglePatterns === 'function') togglePatterns();
+    });
+    
+    if (el('togglePatternExplainBtn')) el('togglePatternExplainBtn').addEventListener('click', () => {
+        if (typeof togglePatternExplain === 'function') togglePatternExplain();
+    });
+    
+    if (el('summaryToggleBtn')) el('summaryToggleBtn').addEventListener('click', () => {
+        if (typeof toggleSummary === 'function') toggleSummary();
+    });
 
     loadFocusBlock();
 });

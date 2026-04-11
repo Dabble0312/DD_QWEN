@@ -61,8 +61,16 @@
                 </a>
                 <a href="test.html" class="nav-item">
                     <span class="nav-item-icon">🏆</span>
-                    <span>Certification</span>
+                    <span>Quiz</span>
                 </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-label">Tools</div>
+                <button id="journalBtn" class="nav-item" style="width: 100%; background: none; border: none; cursor: pointer; text-align: left; padding: 0;">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Trade Journal</span>
+                </button>
             </div>
         </nav>
 
@@ -252,6 +260,54 @@
             </div>
         </div>
 
+        <!-- Mission Report Modal (New) -->
+        <div id="mission-report-modal" class="modal-overlay hidden">
+            <div class="modal-content mission-report">
+                <div class="modal-header">
+                    <h2>🎯 Mission Report</h2>
+                    <button class="modal-close" onclick="closeMissionReport()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Grade & Stats -->
+                    <div class="mission-grade-section">
+                        <div class="grade-badge" id="report-grade">--</div>
+                        <div class="mission-stats-grid">
+                            <div class="mission-stat">
+                                <span class="stat-label">Score</span>
+                                <span class="stat-value" id="report-score">--</span>
+                            </div>
+                            <div class="mission-stat">
+                                <span class="stat-label">Trades</span>
+                                <span class="stat-value" id="report-total-trades">--</span>
+                            </div>
+                            <div class="mission-stat">
+                                <span class="stat-label">Accuracy</span>
+                                <span class="stat-value" id="report-accuracy">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade History -->
+                    <div class="trade-history-section">
+                        <h3>Trade History</h3>
+                        <div id="report-trade-list" class="trade-log-container">
+                            <!-- Trades will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="downloadPDFReport()">
+                            📄 Export PDF Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeMissionReport()">
+                            🏠 Return to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Scripts -->
@@ -259,14 +315,168 @@
     <script
         src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="supabase.js"></script>
     <script src="shared/chart.js"></script>
     <script src="shared/ui.js"></script>
+    <script src="js/services/JournalManager.js"></script>
     <script src="focus-summary.js"></script>
     <script src="focus-patterns.js"></script>
     <script src="focus-narate.js"></script>
     <script src="focus-ui.js"></script>
     <script src="focus-core.js"></script>
+    
+    <!-- Journal Modal -->
+    <div id="journalModal" class="modal-overlay hidden">
+        <div class="modal-content journal-modal">
+            <div class="modal-header">
+                <h2>📊 Trade Journal & Performance</h2>
+                <button class="modal-close" id="closeJournalBtn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="journal-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Trades</div>
+                        <div class="stat-value" id="journalTotalTrades">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Win Rate</div>
+                        <div class="stat-value" id="journalWinRate">0%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg Accuracy</div>
+                        <div class="stat-value" id="journalAvgAccuracy">0%</div>
+                    </div>
+                </div>
+                <div class="journal-actions">
+                    <button class="btn-primary" id="exportPdfBtn">Export PDF Report</button>
+                    <button class="btn-secondary" id="clearJournalBtn">Clear History</button>
+                </div>
+                <div class="journal-entries" id="journalEntries">
+                    <!-- Entries will be populated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Journal Modal Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const journalBtn = document.getElementById('journalBtn');
+            const journalModal = document.getElementById('journalModal');
+            const closeJournalBtn = document.getElementById('closeJournalBtn');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
+            const clearJournalBtn = document.getElementById('clearJournalBtn');
+
+            if (journalBtn) {
+                journalBtn.addEventListener('click', function() {
+                    openJournalModal();
+                });
+            }
+
+            if (closeJournalBtn) {
+                closeJournalBtn.addEventListener('click', function() {
+                    journalModal.classList.add('hidden');
+                });
+            }
+
+            if (exportPdfBtn) {
+                exportPdfBtn.addEventListener('click', function() {
+                    alert('PDF Export will be available when database is connected. For now, use browser Print (Ctrl+P) on this page.');
+                });
+            }
+
+            if (clearJournalBtn) {
+                clearJournalBtn.addEventListener('click', function() {
+                    if (confirm('Are you sure you want to clear all journal history? This cannot be undone.')) {
+                        if (window.JournalManager) {
+                            window.JournalManager.clear();
+                            openJournalModal(); // Refresh display
+                        }
+                    }
+                });
+            }
+
+            // Close modal on outside click
+            if (journalModal) {
+                journalModal.addEventListener('click', function(e) {
+                    if (e.target === journalModal) {
+                        journalModal.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        function openJournalModal() {
+            const modal = document.getElementById('journalModal');
+            const entriesContainer = document.getElementById('journalEntries');
+            const totalTradesEl = document.getElementById('journalTotalTrades');
+            const winRateEl = document.getElementById('journalWinRate');
+            const avgAccuracyEl = document.getElementById('journalAvgAccuracy');
+
+            if (!window.JournalManager || !modal || !entriesContainer) return;
+
+            const logs = window.JournalManager.getAll();
+            
+            // Update stats
+            const totalTrades = logs.length;
+            const correctTrades = logs.filter(l => l.metadata && l.metadata.correctDirection).length;
+            const winRate = totalTrades > 0 ? Math.round((correctTrades / totalTrades) * 100) : 0;
+            const avgAccuracy = totalTrades > 0 
+                ? (logs.reduce((sum, l) => sum + (l.accuracy || 0), 0) / totalTrades).toFixed(2)
+                : 0;
+
+            if (totalTradesEl) totalTradesEl.textContent = totalTrades;
+            if (winRateEl) winRateEl.textContent = winRate + '%';
+            if (avgAccuracyEl) avgAccuracyEl.textContent = avgAccuracy + '%';
+
+            // Populate entries
+            if (logs.length === 0) {
+                entriesContainer.innerHTML = '<div class="journal-empty">No trades logged yet. Start practicing in Focus Mode!</div>';
+            } else {
+                entriesContainer.innerHTML = logs.map(log => {
+                    const date = new Date(log.timestamp).toLocaleString();
+                    const isCorrect = log.metadata && log.metadata.correctDirection;
+                    const directionClass = isCorrect ? 'correct' : 'wrong';
+                    const directionIcon = isCorrect ? '✅' : '❌';
+                    
+                    return `
+                        <div class="journal-entry">
+                            <div class="entry-header">
+                                <span class="entry-date">${date}</span>
+                                <span class="entry-badge ${directionClass}">${directionIcon} ${log.userGuess.trend.toUpperCase()}</span>
+                            </div>
+                            <div class="entry-body">
+                                <div class="entry-chart">
+                                    <img src="${log.screenshot || ''}" alt="Chart snapshot" loading="lazy" onerror="this.style.display='none'">
+                                </div>
+                                <div class="entry-details">
+                                    <div class="detail-row">
+                                        <span class="detail-label">Target:</span>
+                                        <span class="detail-value">₹${log.userGuess.target.toFixed(2)}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Actual:</span>
+                                        <span class="detail-value">₹${log.actualData.close.toFixed(2)}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <span class="detail-label">Delta:</span>
+                                        <span class="detail-value ${log.accuracyDelta < 1 ? 'good' : 'bad'}">₹${log.accuracyDelta.toFixed(2)}</span>
+                                    </div>
+                                    <div class="entry-narrative">
+                                        <strong>Analysis:</strong>
+                                        <p>${log.narrative}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            modal.classList.remove('hidden');
+        }
+    </script>
 </body>
 
 </html>
