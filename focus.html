@@ -267,6 +267,7 @@
     <script
         src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.development.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="supabase.js"></script>
     <script src="shared/chart.js"></script>
     <script src="shared/ui.js"></script>
@@ -300,7 +301,7 @@
                     </div>
                 </div>
                 <div class="journal-actions">
-                    <button class="btn-primary" id="exportCsvBtn">Export CSV</button>
+                    <button class="btn-primary" id="exportPdfBtn">Export PDF Report</button>
                     <button class="btn-secondary" id="clearJournalBtn">Clear History</button>
                 </div>
                 <div class="journal-entries" id="journalEntries">
@@ -316,7 +317,7 @@
             const journalBtn = document.getElementById('journalBtn');
             const journalModal = document.getElementById('journalModal');
             const closeJournalBtn = document.getElementById('closeJournalBtn');
-            const exportCsvBtn = document.getElementById('exportCsvBtn');
+            const exportPdfBtn = document.getElementById('exportPdfBtn');
             const clearJournalBtn = document.getElementById('clearJournalBtn');
 
             if (journalBtn) {
@@ -331,10 +332,10 @@
                 });
             }
 
-            if (exportCsvBtn) {
-                exportCsvBtn.addEventListener('click', function() {
+            if (exportPdfBtn) {
+                exportPdfBtn.addEventListener('click', function() {
                     if (window.JournalService) {
-                        window.JournalService.downloadCSV();
+                        window.JournalService.exportPDF();
                     }
                 });
             }

@@ -147,55 +147,133 @@ class JournalService {
     }
 
     /**
-     * Export journal to CSV format
-     * @returns {string} CSV content
+     * Export journal to PDF format using html2pdf
      */
-    exportToCSV() {
+    async exportPDF() {
         const logs = this.getHistory();
-        if (logs.length === 0) return '';
-
-        const headers = ['Date', 'Ticker', 'Direction', 'Target', 'Actual Close', 'Delta', 'Correct?', 'Narrative'];
-        const rows = logs.map(log => [
-            new Date(log.timestamp).toLocaleString(),
-            log.ticker,
-            log.userGuess.direction,
-            log.userGuess.target,
-            log.actualData.close,
-            log.accuracyDelta,
-            log.isCorrectDirection ? 'Yes' : 'No',
-            `"${log.narrative.replace(/"/g, '""')}"` // Escape quotes
-        ]);
-
-        return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    }
-
-    /**
-     * Download CSV file
-     */
-    downloadCSV() {
-        const csvContent = this.exportToCSV();
-        if (!csvContent) {
+        if (logs.length === 0) {
             alert('No data to export');
             return;
         }
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        
-        link.setAttribute('href', url);
-        link.setAttribute('download', `dojidash_journal_${new Date().toISOString().split('T')[0]}.csv`);
-        link.style.visibility = 'hidden';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Create a temporary container for PDF generation
+        const container = document.createElement('div');
+        container.style.padding = '20px';
+        container.style.fontFamily = 'Inter, sans-serif';
+        container.style.background = '#09090b';
+        container.style.color = '#e4e4e7';
+
+        // Header
+        const header = document.createElement('h1');
+        header.textContent = 'DojiDash Trade Journal Report';
+        header.style.fontSize = '24px';
+        header.style.marginBottom = '10px';
+        header.style.color = '#a855f7';
+        container.appendChild(header);
+
+        const dateRange = document.createElement('p');
+        dateRange.textContent = `Generated: ${new Date().toLocaleString()}`;
+        dateRange.style.fontSize = '12px';
+        dateRange.style.color = '#71717a';
+        dateRange.style.marginBottom = '20px';
+        container.appendChild(dateRange);
+
+        // Stats Summary
+        const totalTrades = logs.length;
+        const wins = logs.filter(l => l.isCorrectDirection).length;
+        const winRate = ((wins / totalTrades) * 100).toFixed(1);
+        const avgAccuracy = (logs.reduce((sum, l) => sum + (l.isCorrectDirection ? 1 : 0), 0) / totalTrades * 100).toFixed(1);
+
+        const statsDiv = document.createElement('div');
+        statsDiv.style.display = 'flex';
+        statsDiv.style.gap = '20px';
+        statsDiv.style.marginBottom = '30px';
+        statsDiv.style.padding = '15px';
+        statsDiv.style.background = '#18181b';
+        statsDiv.style.borderRadius = '8px';
+        statsDiv.innerHTML = `
+            <div><strong>Total Trades:</strong> ${totalTrades}</div>
+            <div><strong>Win Rate:</strong> ${winRate}%</div>
+            <div><strong>Avg Accuracy:</strong> ${avgAccuracy}%</div>
+        `;
+        container.appendChild(statsDiv);
+
+        // Trade Entries
+        logs.forEach((log, index) => {
+            const entryDiv = document.createElement('div');
+            entryDiv.style.marginBottom = '20px';
+            entryDiv.style.padding = '15px';
+            entryDiv.style.background = '#18181b';
+            entryDiv.style.borderRadius = '8px';
+            entryDiv.style.border = '1px solid #27272a';
+
+            const entryHeader = document.createElement('div');
+            entryHeader.style.display = 'flex';
+            entryHeader.style.justifyContent = 'space-between';
+            entryHeader.style.marginBottom = '10px';
+            entryHeader.innerHTML = `
+                <span style="font-weight: 600;">Trade #${index + 1} - ${log.ticker}</span>
+                <span style="color: ${log.isCorrectDirection ? '#22c55e' : '#ef4444'};">${log.isCorrectDirection ? 'WIN' : 'LOSS'}</span>
+            `;
+            entryDiv.appendChild(entryHeader);
+
+            const detailsGrid = document.createElement('div');
+            detailsGrid.style.display = 'grid';
+            detailsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            detailsGrid.style.gap = '10px';
+            detailsGrid.style.fontSize = '13px';
+            detailsGrid.style.marginBottom = '10px';
+            detailsGrid.innerHTML = `
+                <div><strong>Direction:</strong> ${log.userGuess.direction}</div>
+                <div><strong>Target:</strong> $${log.userGuess.target.toFixed(2)}</div>
+                <div><strong>Actual Close:</strong> $${log.actualData.close.toFixed(2)}</div>
+                <div><strong>Delta:</strong> $${log.accuracyDelta.toFixed(2)}</div>
+            `;
+            entryDiv.appendChild(detailsGrid);
+
+            if (log.snapshotBase64) {
+                const img = document.createElement('img');
+                img.src = log.snapshotBase64;
+                img.style.width = '100%';
+                img.style.maxWidth = '400px';
+                img.style.borderRadius = '4px';
+                img.style.marginTop = '10px';
+                entryDiv.appendChild(img);
+            }
+
+            const narrative = document.createElement('p');
+            narrative.style.fontSize = '12px';
+            narrative.style.color = '#a1a1aa';
+            narrative.style.marginTop = '10px';
+            narrative.textContent = log.narrative;
+            entryDiv.appendChild(narrative);
+
+            container.appendChild(entryDiv);
+        });
+
+        document.body.appendChild(container);
+
+        try {
+            await html2pdf()
+                .set({
+                    margin: 10,
+                    filename: `dojidash_journal_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2, useCORS: true },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                })
+                .from(container)
+                .save()
+                .then(() => {
+                    document.body.removeChild(container);
+                });
+        } catch (error) {
+            console.error('[JournalService] PDF export error:', error);
+            alert('Error generating PDF. Please try again.');
+            document.body.removeChild(container);
+        }
     }
 
-    /**
-     * Generate UUID for unique entry IDs
-     * @returns {string} UUID v4
-     */
     generateUUID() {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             const r = Math.random() * 16 | 0;
