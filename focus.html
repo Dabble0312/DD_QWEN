@@ -414,16 +414,16 @@
             const winRateEl = document.getElementById('journalWinRate');
             const avgAccuracyEl = document.getElementById('journalAvgAccuracy');
 
-            if (!window.JournalService || !modal || !entriesContainer) return;
+            if (!window.JournalManager || !modal || !entriesContainer) return;
 
-            const logs = window.JournalService.getHistory();
+            const logs = window.JournalManager.getAll();
             
             // Update stats
             const totalTrades = logs.length;
-            const correctTrades = logs.filter(l => l.isCorrectDirection).length;
+            const correctTrades = logs.filter(l => l.metadata && l.metadata.correctDirection).length;
             const winRate = totalTrades > 0 ? Math.round((correctTrades / totalTrades) * 100) : 0;
             const avgAccuracy = totalTrades > 0 
-                ? Math.round(logs.reduce((sum, l) => sum + (l.accuracyDelta < 1 ? 100 : 100 - Math.min(l.accuracyDelta, 100)), 0) / totalTrades)
+                ? (logs.reduce((sum, l) => sum + (l.accuracy || 0), 0) / totalTrades).toFixed(2)
                 : 0;
 
             if (totalTradesEl) totalTradesEl.textContent = totalTrades;
@@ -436,18 +436,19 @@
             } else {
                 entriesContainer.innerHTML = logs.map(log => {
                     const date = new Date(log.timestamp).toLocaleString();
-                    const directionClass = log.isCorrectDirection ? 'correct' : 'wrong';
-                    const directionIcon = log.isCorrectDirection ? '✅' : '❌';
+                    const isCorrect = log.metadata && log.metadata.correctDirection;
+                    const directionClass = isCorrect ? 'correct' : 'wrong';
+                    const directionIcon = isCorrect ? '✅' : '❌';
                     
                     return `
                         <div class="journal-entry">
                             <div class="entry-header">
                                 <span class="entry-date">${date}</span>
-                                <span class="entry-badge ${directionClass}">${directionIcon} ${log.userGuess.direction}</span>
+                                <span class="entry-badge ${directionClass}">${directionIcon} ${log.userGuess.trend.toUpperCase()}</span>
                             </div>
                             <div class="entry-body">
                                 <div class="entry-chart">
-                                    <img src="${log.snapshotBase64}" alt="Chart snapshot" loading="lazy">
+                                    <img src="${log.screenshot || ''}" alt="Chart snapshot" loading="lazy" onerror="this.style.display='none'">
                                 </div>
                                 <div class="entry-details">
                                     <div class="detail-row">

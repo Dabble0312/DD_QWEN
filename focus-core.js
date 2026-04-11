@@ -415,16 +415,18 @@ function captureTradeEntry() {
     // Determine result string
     const resultString = isCorrect ? "WIN" : "LOSS";
 
-    // Capture with JournalService
-    window.JournalService.captureTradeEntry(
-        chart,
-        narrativeText,
-        { direction: guess ? guess.toUpperCase() : 'UNKNOWN', target: targetPrice || 0 },
-        actualData,
-        resultString
-    ).catch(err => {
-        console.error('[focus-core] Failed to capture trade entry:', err);
-    });
+    // Capture with JournalManager
+    if (window.JournalManager) {
+        window.JournalManager.addEntry({
+            screenshot: chart.takeScreenshot(),
+            narration: narrativeText,
+            userGuess: { trend: guess || 'unknown', priceTarget: targetPrice || 0 },
+            accuracy: accuracyDelta,
+            metadata: { correctDirection: isCorrect, actualClose: actualData.close }
+        });
+    } else {
+        console.warn('[focus-core] JournalManager not available');
+    }
 
     // Reset guess storage for next round ONLY AFTER capturing
     // We keep pendingPrediction alive until the next guess starts
@@ -500,14 +502,12 @@ function showMissionReportModal(accuracy, reason) {
     if (totalEl) totalEl.textContent = guessCount;
     if (accEl) accEl.textContent = `${correctCount}/${guessCount} Correct`;
     
-    // Render Trade List from Journal
+    // Render Trade List from JournalManager
     const listContainer = document.getElementById('report-trade-list');
     if (listContainer) {
         listContainer.innerHTML = '';
         
-        const recentTrades = typeof JournalService !== 'undefined' 
-            ? JournalService.getRecentTrades(5) 
-            : [];
+        const recentTrades = window.JournalManager ? window.JournalManager.getAll().slice(0, 5) : [];
         
         if (recentTrades.length === 0) {
             listContainer.innerHTML = '<div class="empty-state">No trades recorded this session</div>';
@@ -515,17 +515,19 @@ function showMissionReportModal(accuracy, reason) {
             recentTrades.forEach(trade => {
                 const item = document.createElement('div');
                 item.className = 'trade-log-item';
-                const resultClass = trade.result === 'WIN' ? 'badge-success' : 'badge-danger';
+                const isWin = trade.metadata && trade.metadata.correctDirection;
+                const resultClass = isWin ? 'badge-success' : 'badge-danger';
+                const direction = trade.userGuess ? trade.userGuess.trend.toUpperCase() : 'UNKNOWN';
                 item.innerHTML = `
                     <div class="trade-snapshot">
-                        <img src="${trade.snapshot || ''}" alt="Chart" onerror="this.style.display='none'" />
+                        <img src="${trade.screenshot || ''}" alt="Chart" onerror="this.style.display='none'" />
                     </div>
                     <div class="trade-details">
                         <div class="trade-header">
-                            <span class="badge ${resultClass}">${trade.result}</span>
-                            <span class="trade-dir">${trade.direction}</span>
+                            <span class="badge ${resultClass}">${isWin ? 'WIN' : 'LOSS'}</span>
+                            <span class="trade-dir">${direction}</span>
                         </div>
-                        <div class="trade-narrative">${trade.narrative ? trade.narrative.substring(0, 60) + '...' : 'No analysis'}</div>
+                        <div class="trade-narrative">${trade.narration ? trade.narration.substring(0, 60) + '...' : 'No analysis'}</div>
                     </div>
                 `;
                 listContainer.appendChild(item);
@@ -540,11 +542,7 @@ function showMissionReportModal(accuracy, reason) {
 
 // Expose global functions for HTML buttons
 window.downloadPDFReport = () => {
-    if (typeof JournalService !== 'undefined') {
-        JournalService.exportPDF();
-    } else {
-        alert("Journal service not loaded");
-    }
+    alert("PDF Export feature will be added in the next update. For now, you can view your trades in the Journal modal.");
 };
 
 window.closeMissionReport = () => {
