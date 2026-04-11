@@ -385,11 +385,31 @@ function captureTradeEntry() {
 /* -----------------------------------------
    7. END SESSION
 ----------------------------------------- */
-function endSession(reason) {
+async function endSession(reason) {
     sessionActive    = false;
     autoRevealActive = false;
     awaitingGuess    = false;
     setButtonState("revealing");
+
+    // 1. Save Final Trade Entry if pending
+    if (pendingPrediction && pendingPrediction.direction) {
+        try {
+            const lastNarrative = window.lastNarrativeText || "Session Ended";
+            const currentCandle = allCandles[revealIndex - 1] || {};
+            
+            if (typeof JournalService !== 'undefined') {
+                await JournalService.saveEntry(
+                    chart,
+                    pendingPrediction,
+                    lastNarrative,
+                    currentCandle
+                );
+                console.log("✅ Final trade saved to journal");
+            }
+        } catch (e) {
+            console.error("❌ Failed to save final trade:", e);
+        }
+    }
 
     // Reveal all remaining candles at once
     revealedSoFar = [...futureCandles];
@@ -401,25 +421,96 @@ function endSession(reason) {
 
     const title = reason === "focus_lost" ? "Focus Lost — Reset Needed" : "Session Complete";
 
-    const endScreen  = document.getElementById('endScreen');
-    const resultText = endScreen ? endScreen.querySelector('p') : null;
+    // 2. Disable Controls
+    const controls = document.querySelector('.control-group');
+    if (controls) controls.style.pointerEvents = 'none';
+    const inputs = document.querySelectorAll('input, button');
+    inputs.forEach(el => el.disabled = true);
 
-    if (endScreen && resultText) {
-        resultText.innerHTML =
-            `<strong>${title}</strong><br><br>` +
-            `Guesses: <strong>${guessCount}</strong><br>` +
-            `Correct: <strong>${correctCount}</strong><br>` +
-            `Wrong: <strong>${wrongCount}</strong><br>` +
-            `Accuracy: <strong>${accuracy}%</strong><br>` +
-            `Candles revealed: <strong>${revealIndex} / ${futureCandles.length}</strong>`;
-        endScreen.classList.remove('hidden');
+    // 3. Show Mission Report Modal instead of basic end screen
+    setTimeout(() => {
+        showMissionReportModal(accuracy, reason);
+    }, 800);
+}
+
+function showMissionReportModal(accuracy, reason) {
+    const modal = document.getElementById('mission-report-modal');
+    if (!modal) {
+        console.warn("⚠️ Mission report modal not found in DOM");
+        return;
     }
 
-    document.getElementById('playAgainBtn').onclick = () => {
-        endScreen.classList.add('hidden');
-        loadFocusBlock();
-    };
-    document.getElementById('homeBtn').onclick = () => {
+    // Calculate Grade
+    let grade = 'F';
+    if (accuracy >= 90) grade = 'A+';
+    else if (accuracy >= 80) grade = 'A';
+    else if (accuracy >= 70) grade = 'B';
+    else if (accuracy >= 60) grade = 'C';
+    else if (accuracy >= 50) grade = 'D';
+
+    // Populate Stats
+    document.getElementById('report-grade').textContent = grade;
+    document.getElementById('report-score').textContent = `${accuracy}% Accuracy`;
+    document.getElementById('report-total-trades').textContent = guessCount;
+    document.getElementById('report-accuracy').textContent = `${correctCount}/${guessCount} Correct`;
+    
+    // Render Trade List from Journal
+    const listContainer = document.getElementById('report-trade-list');
+    if (listContainer) {
+        listContainer.innerHTML = '';
+        
+        const recentTrades = typeof JournalService !== 'undefined' 
+            ? JournalService.getRecentTrades(5) 
+            : [];
+        
+        if (recentTrades.length === 0) {
+            listContainer.innerHTML = '<div class="empty-state">No trades recorded this session</div>';
+        } else {
+            recentTrades.forEach(trade => {
+                const item = document.createElement('div');
+                item.className = 'trade-log-item';
+                const resultClass = trade.result === 'WIN' ? 'badge-success' : 'badge-danger';
+                item.innerHTML = `
+                    <div class="trade-snapshot">
+                        <img src="${trade.snapshot || ''}" alt="Chart" onerror="this.style.display='none'" />
+                    </div>
+                    <div class="trade-details">
+                        <div class="trade-header">
+                            <span class="badge ${resultClass}">${trade.result}</span>
+                            <span class="trade-dir">${trade.direction}</span>
+                        </div>
+                        <div class="trade-narrative">${trade.narrative ? trade.narrative.substring(0, 60) + '...' : 'No analysis'}</div>
+                    </div>
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+    }
+
+    // Show Modal
+    modal.classList.add('active');
+    console.log("📊 Mission Report Modal Displayed");
+}
+
+// Expose global functions for HTML buttons
+window.downloadPDFReport = () => {
+    if (typeof JournalService !== 'undefined') {
+        JournalService.exportPDF();
+    } else {
+        alert("Journal service not loaded");
+    }
+};
+
+window.closeMissionReport = () => {
+    const modal = document.getElementById('mission-report-modal');
+    if (modal) modal.classList.remove('active');
+    window.location.href = 'index.html';
+};
+
+// Fallback navigation if buttons exist
+const homeBtn = document.getElementById('homeBtn');
+if (homeBtn) {
+    homeBtn.onclick = () => {
         window.location.href = 'index.html';
     };
 }

@@ -260,6 +260,54 @@
             </div>
         </div>
 
+        <!-- Mission Report Modal (New) -->
+        <div id="mission-report-modal" class="modal-overlay hidden">
+            <div class="modal-content mission-report">
+                <div class="modal-header">
+                    <h2>🎯 Mission Report</h2>
+                    <button class="modal-close" onclick="closeMissionReport()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Grade & Stats -->
+                    <div class="mission-grade-section">
+                        <div class="grade-badge" id="report-grade">--</div>
+                        <div class="mission-stats-grid">
+                            <div class="mission-stat">
+                                <span class="stat-label">Score</span>
+                                <span class="stat-value" id="report-score">--</span>
+                            </div>
+                            <div class="mission-stat">
+                                <span class="stat-label">Trades</span>
+                                <span class="stat-value" id="report-total-trades">--</span>
+                            </div>
+                            <div class="mission-stat">
+                                <span class="stat-label">Accuracy</span>
+                                <span class="stat-value" id="report-accuracy">--</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade History -->
+                    <div class="trade-history-section">
+                        <h3>Trade History</h3>
+                        <div id="report-trade-list" class="trade-log-container">
+                            <!-- Trades will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="modal-actions">
+                        <button class="btn btn-primary" onclick="downloadPDFReport()">
+                            📄 Export PDF Report
+                        </button>
+                        <button class="btn btn-secondary" onclick="closeMissionReport()">
+                            🏠 Return to Dashboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <!-- Scripts -->

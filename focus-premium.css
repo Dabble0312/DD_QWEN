@@ -820,3 +820,158 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========================================
+   MISSION REPORT MODAL STYLES
+   ======================================== */
+
+#mission-report-modal .modal-content.mission-report {
+  max-width: 700px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.mission-grade-section {
+  text-align: center;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-card) 100%);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--space-6);
+  border: 1px solid var(--border-primary);
+}
+
+.grade-badge {
+  display: inline-block;
+  font-size: 64px;
+  font-weight: 800;
+  color: var(--accent-primary);
+  text-shadow: 0 0 30px rgba(168, 85, 247, 0.4);
+  margin-bottom: var(--space-4);
+  animation: gradePop 0.5s ease-out;
+}
+
+@keyframes gradePop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mission-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.mission-stat {
+  background: var(--bg-card);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+}
+
+.mission-stat .stat-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-2);
+}
+
+.mission-stat .stat-value {
+  display: block;
+  font-size: var(--text-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.trade-history-section h3 {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.trade-log-container {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: var(--space-6);
+}
+
+.trade-log-item {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-primary);
+  margin-bottom: var(--space-3);
+  transition: all 0.2s ease;
+}
+
+.trade-log-item:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-tertiary);
+}
+
+.trade-snapshot {
+  flex-shrink: 0;
+  width: 100px;
+  height: 60px;
+  background: var(--bg-card);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-primary);
+}
+
+.trade-snapshot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trade-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.trade-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.trade-dir {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.trade-narrative {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.5;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-8);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border-primary);
+}

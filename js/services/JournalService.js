@@ -289,6 +289,83 @@ class JournalService {
         localStorage.removeItem(this.STORAGE_KEY);
         console.log('[JournalService] All journal data cleared');
     }
+
+    /**
+     * Get recent trades for the mission report modal
+     * @param {number} limit - Number of recent trades to return
+     * @returns {Array} Array of trade entries with normalized properties
+     */
+    getRecentTrades(limit = 5) {
+        const logs = this.getHistory(limit);
+        return logs.map(log => ({
+            id: log.id,
+            timestamp: log.timestamp,
+            ticker: log.ticker,
+            direction: log.userGuess.direction,
+            target: log.userGuess.target,
+            actualClose: log.actualData.close,
+            accuracyDelta: log.accuracyDelta,
+            result: log.isCorrectDirection ? 'WIN' : 'LOSS',
+            narrative: log.narrative,
+            snapshot: log.snapshotBase64 || ''
+        }));
+    }
+
+    /**
+     * Get session statistics for the mission report
+     * @returns {Object} Session stats including grade, winRate, totalTrades, avgAccuracy, recentTrades
+     */
+    getSessionStats() {
+        const logs = this.getHistory(50); // Get last 50 trades for session analysis
+        
+        if (logs.length === 0) {
+            return {
+                grade: 'F',
+                winRate: 0,
+                totalTrades: 0,
+                avgAccuracy: 0,
+                recentTrades: []
+            };
+        }
+
+        const wins = logs.filter(l => l.isCorrectDirection).length;
+        const winRate = Math.round((wins / logs.length) * 100);
+        
+        // Calculate average accuracy (inverse of delta percentage)
+        const avgAccuracy = Math.round(winRate); // Simplified: use win rate as accuracy proxy
+
+        // Determine grade
+        let grade = 'F';
+        if (winRate >= 90) grade = 'A+';
+        else if (winRate >= 80) grade = 'A';
+        else if (winRate >= 70) grade = 'B';
+        else if (winRate >= 60) grade = 'C';
+        else if (winRate >= 50) grade = 'D';
+
+        return {
+            grade,
+            winRate,
+            totalTrades: logs.length,
+            avgAccuracy,
+            recentTrades: this.getRecentTrades(5)
+        };
+    }
+
+    /**
+     * Save entry with normalized parameters (wrapper for compatibility)
+     * @param {Object} chart - Lightweight Charts instance
+     * @param {Object} userGuess - { direction, target }
+     * @param {string} narrative - Narrator text
+     * @param {Object} actualData - { close, open, high, low }
+     * @param {string} ticker - Ticker symbol
+     */
+    async saveEntry(chart, userGuess, narrative, actualData, ticker = 'UNKNOWN') {
+        try {
+            await this.captureTradeEntry(chart, narrative, userGuess, actualData, ticker);
+        } catch (error) {
+            console.error('[JournalService] saveEntry error:', error);
+        }
+    }
 }
 
 // Export singleton instance
