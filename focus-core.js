@@ -52,6 +52,7 @@ let username = localStorage.getItem("username") || "Player";
 // =========================
 let currentUserGuess = null;
 let currentPriceTarget = null;
+let lastNarrativeText = ""; // Store the last generated narrative
 
 /* -----------------------------------------
    1. LOAD BLOCK FROM SUPABASE
@@ -93,9 +94,11 @@ async function loadFocusBlock() {
         showCandleInfo(null);   // focus-ui.js
         showPriceFeedback("");  // focus-ui.js
         showStatus("");
-        clearPatternHighlights();  // focus-patterns.js
-        hidePatternPanels();       // focus-patterns.js
-        clearDynamicZones();       // focus-patterns.js
+        
+        // Ensure these helpers exist before calling
+        if (typeof clearPatternHighlights === 'function') clearPatternHighlights();
+        if (typeof hidePatternPanels === 'function') hidePatternPanels();
+        if (typeof clearDynamicZones === 'function') clearDynamicZones();
 
     } catch (err) {
         console.error("Supabase Error:", err.message);
@@ -133,7 +136,11 @@ function initChart() {
 
     candlestickSeries = chart.addCandlestickSeries(CANDLESTICK_SERIES_OPTIONS);
     volumeSeries      = chart.addHistogramSeries(VOLUME_SERIES_OPTIONS);
-    chart.priceScale('volume').applyOptions(VOLUME_PRICE_SCALE_OPTIONS);
+    
+    // Check if volume price scale options exist
+    if (typeof VOLUME_PRICE_SCALE_OPTIONS !== 'undefined') {
+        chart.priceScale('volume').applyOptions(VOLUME_PRICE_SCALE_OPTIONS);
+    }
 
     renderChart();
 
@@ -141,7 +148,8 @@ function initChart() {
     candlestickSeries.applyOptions({ autoscaleInfoProvider: undefined });
 
     chart.timeScale().fitContent();
-    updateDynamicZones();   // focus-patterns.js — draws initial zones
+    
+    if (typeof updateDynamicZones === 'function') updateDynamicZones();
 
     // ── Candle click → update stats + info panel
     chart.subscribeClick((param) => {
@@ -151,20 +159,24 @@ function initChart() {
         const matched     = allVisible.find(c => c.date.slice(0, 10) === clickedDate);
         if (!matched) return;
 
-        updateStatsPanel(matched);   // focus-ui.js
-        showCandleInfo(matched);     // focus-ui.js
-        refreshSummaryIfOpen(matched); // focus-ui.js
+        if (typeof updateStatsPanel === 'function') updateStatsPanel(matched);
+        if (typeof showCandleInfo === 'function') showCandleInfo(matched);
+        if (typeof refreshSummaryIfOpen === 'function') refreshSummaryIfOpen(matched);
     });
 
     // ── Redraw zone overlays on viewport change
     chart.timeScale().subscribeVisibleLogicalRangeChange(() => {
-        requestAnimationFrame(drawZoneOverlays);   // focus-patterns.js
+        requestAnimationFrame(() => {
+            if (typeof drawZoneOverlays === 'function') drawZoneOverlays();
+        });
     });
     chart.subscribeCrosshairMove(() => {
-        requestAnimationFrame(drawZoneOverlays);
+        requestAnimationFrame(() => {
+            if (typeof drawZoneOverlays === 'function') drawZoneOverlays();
+        });
     });
 
-    setupZoneCanvas(chartDiv);   // focus-patterns.js
+    if (typeof setupZoneCanvas === 'function') setupZoneCanvas(chartDiv);
 }
 
 /* -----------------------------------------
@@ -172,8 +184,12 @@ function initChart() {
 ----------------------------------------- */
 function renderChart() {
     const all        = [...allCandles, ...revealedSoFar];
-    candlestickSeries.setData(all.map(toCandlePoint));   // shared/chart.js
-    volumeSeries.setData(all.map(toVolumePoint));        // shared/chart.js
+    if (typeof toCandlePoint === 'function') {
+        candlestickSeries.setData(all.map(toCandlePoint));
+    }
+    if (typeof toVolumePoint === 'function') {
+        volumeSeries.setData(all.map(toVolumePoint));
+    }
 }
 
 /* -----------------------------------------
@@ -188,8 +204,12 @@ function resetSession() {
     sessionActive    = true;
 
     pendingPrediction = null;
-    updateHUD();             // focus-ui.js
-    setButtonState("reveal"); // focus-ui.js
+    currentUserGuess = null;
+    currentPriceTarget = null;
+    lastNarrativeText = "";
+
+    if (typeof updateHUD === 'function') updateHUD();
+    if (typeof setButtonState === 'function') setButtonState("reveal");
 }
 
 /* -----------------------------------------
@@ -203,7 +223,7 @@ function startAutoReveal() {
     }
 
     autoRevealActive = true;
-    setButtonState("revealing");
+    if (typeof setButtonState === 'function') setButtonState("revealing");
 
     let count = 0;
     const maxThisBurst = getRevealCount();
@@ -212,14 +232,14 @@ function startAutoReveal() {
         if (count >= maxThisBurst || revealIndex >= futureCandles.length) {
             autoRevealActive = false;
             awaitingGuess    = true;
-            setButtonState("guess");
+            if (typeof setButtonState === 'function') setButtonState("guess");
             showStatus("What happens next?");
 
-            // Capture journal entry before narrator speaks
+            // Capture journal entry BEFORE narrator speaks so we have the snapshot of the reveal
             captureTradeEntry();
 
             // Trigger narrator
-            if (window.runNarratorEngine) {
+            if (typeof runNarratorEngine === 'function') {
                 runNarratorEngine();
             }
 
@@ -234,8 +254,8 @@ function startAutoReveal() {
 
         renderChart();
        
-        updateStatsPanel();      // focus-ui.js
-        updateDynamicZones();    // focus-patterns.js
+        if (typeof updateStatsPanel === 'function') updateStatsPanel();
+        if (typeof updateDynamicZones === 'function') updateDynamicZones();
 
         if (pendingPrediction && pendingPrediction.candleIndex === thisIndex) {
             scorePendingPrediction();
@@ -280,10 +300,11 @@ function handleGuess(guess) {
         targetPrice:  targetValue,
         candleIndex:  burstEndIndex,
         baseClose:    baselineClose,
+        direction:    guess.toUpperCase() // Ensure direction is stored
     };
 
     showStatus("Reveal to see if you were right!");
-    setButtonState("reveal");
+    if (typeof setButtonState === 'function') setButtonState("reveal");
 }
 
 /* -----------------------------------------
@@ -293,7 +314,8 @@ function scorePendingPrediction() {
     if (!pendingPrediction) return;
 
     const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
-    pendingPrediction = null;
+    // Do not nullify pendingPrediction yet, we need it for the journal capture in revealNext
+    
     guessCount++;
 
     const predictedCandle = futureCandles[candleIndex];
@@ -302,12 +324,12 @@ function scorePendingPrediction() {
 
     if (correct) {
         correctCount++;
-        showPopup("correct");    // shared/ui.js
-        showWSBPopup(true);      // shared/ui.js
+        if (typeof showPopup === 'function') showPopup("correct");
+        if (typeof showWSBPopup === 'function') showWSBPopup(true);
     } else {
         wrongCount++;
-        showPopup("wrong");
-        showWSBPopup(false);
+        if (typeof showPopup === 'function') showPopup("wrong");
+        if (typeof showWSBPopup === 'function') showWSBPopup(false);
     }
 
     // ── Price target feedback
@@ -323,26 +345,7 @@ function scorePendingPrediction() {
             msg = `📈 Actual was ${diffPct}% higher than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
         else
             msg = `📉 Actual was ${diffPct}% lower than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
-        showPriceFeedback(msg);   // focus-ui.js
-    }
-
-    updateHUD();    // focus-ui.js
-
-    // ★★★ CRITICAL FIX: Capture journal entry NOW, after scoring but before next round
-    captureTradeEntry();
-
-    if (wrongCount >= MAX_WRONG) {
-        setTimeout(() => endSession("focus_lost"), 1400);
-        return;
-    }
-    if (revealIndex >= futureCandles.length) {
-        setTimeout(() => endSession("complete"), 1400);
-        return;
-    }
-
-    setTimeout(() => { showStatus(""); }, 2000);
-}
-
+        
 /* -----------------------------------------
    6c. CAPTURE TRADE ENTRY FOR JOURNAL
 ----------------------------------------- */
@@ -352,7 +355,7 @@ function captureTradeEntry() {
 
     const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
     const predictedCandle = futureCandles[candleIndex];
-    
+
     // Calculate accuracy delta
     const actualClose = predictedCandle.close;
     let accuracyDelta = 0;
@@ -360,7 +363,7 @@ function captureTradeEntry() {
         const diff = Math.abs(actualClose - targetPrice);
         accuracyDelta = ((diff / actualClose) * 100);
     }
-    
+
     // Determine if guess was correct
     const priceWentUp = actualClose > baseClose;
     const correctDirection = (guess === 'up' && priceWentUp) || (guess === 'down' && !priceWentUp);
@@ -398,6 +401,39 @@ function captureTradeEntry() {
     console.log('[Journal] Trade captured:', logEntry);
 }
 
+    // Save to JournalManager
+    window.JournalManager.addEntry(logEntry);
+    
+    console.log('[Journal] Trade captured:', logEntry);
+=======
+    // Use the narrative text that was just generated/spoken
+    // If the narrator hasn't finished, we might grab the latest partial, 
+    // but ideally this is called right after the narrator starts or finishes.
+    // For now, we grab the global lastNarrativeText which the narrator updates.
+    const narrativeText = lastNarrativeText || "Analysis generated for this move.";
+
+    // Determine result string
+    const resultString = isCorrect ? "WIN" : "LOSS";
+
+    // Capture with JournalService
+    window.JournalService.captureTradeEntry(
+        chart,
+        narrativeText,
+        { direction: guess ? guess.toUpperCase() : 'UNKNOWN', target: targetPrice || 0 },
+        actualData,
+        resultString
+    ).catch(err => {
+        console.error('[focus-core] Failed to capture trade entry:', err);
+    });
+
+    // Reset guess storage for next round ONLY AFTER capturing
+    // We keep pendingPrediction alive until the next guess starts
+    // But we clear the specific guess data used for this log
+    // currentUserGuess = null; 
+    // currentPriceTarget = null;
+>>>>>>> f265487b7cd784c3d3b99137b76ac5d1f1923c79
+}
+
 /* -----------------------------------------
    7. END SESSION
 ----------------------------------------- */
@@ -405,27 +441,8 @@ async function endSession(reason) {
     sessionActive    = false;
     autoRevealActive = false;
     awaitingGuess    = false;
-    setButtonState("revealing");
-
-    // 1. Save Final Trade Entry if pending
-    if (pendingPrediction && pendingPrediction.direction) {
-        try {
-            const lastNarrative = window.lastNarrativeText || "Session Ended";
-            const currentCandle = allCandles[revealIndex - 1] || {};
-            
-            if (typeof JournalService !== 'undefined') {
-                await JournalService.saveEntry(
-                    chart,
-                    pendingPrediction,
-                    lastNarrative,
-                    currentCandle
-                );
-                console.log("✅ Final trade saved to journal");
-            }
-        } catch (e) {
-            console.error("❌ Failed to save final trade:", e);
-        }
-    }
+    
+    if (typeof setButtonState === 'function') setButtonState("revealing");
 
     // Reveal all remaining candles at once
     revealedSoFar = [...futureCandles];
@@ -440,8 +457,14 @@ async function endSession(reason) {
     // 2. Disable Controls
     const controls = document.querySelector('.control-group');
     if (controls) controls.style.pointerEvents = 'none';
+    
     const inputs = document.querySelectorAll('input, button');
-    inputs.forEach(el => el.disabled = true);
+    inputs.forEach(el => {
+        // Don't disable the journal button or home button if they exist outside control-group
+        if (!el.closest('#mission-report-modal')) {
+             el.disabled = true;
+        }
+    });
 
     // 3. Show Mission Report Modal instead of basic end screen
     setTimeout(() => {
@@ -453,6 +476,8 @@ function showMissionReportModal(accuracy, reason) {
     const modal = document.getElementById('mission-report-modal');
     if (!modal) {
         console.warn("⚠️ Mission report modal not found in DOM");
+        // Fallback alert if modal is missing
+        alert(`Session Ended! Accuracy: ${accuracy}%\nRefresh to play again.`);
         return;
     }
 
@@ -465,10 +490,15 @@ function showMissionReportModal(accuracy, reason) {
     else if (accuracy >= 50) grade = 'D';
 
     // Populate Stats
-    document.getElementById('report-grade').textContent = grade;
-    document.getElementById('report-score').textContent = `${accuracy}% Accuracy`;
-    document.getElementById('report-total-trades').textContent = guessCount;
-    document.getElementById('report-accuracy').textContent = `${correctCount}/${guessCount} Correct`;
+    const gradeEl = document.getElementById('report-grade');
+    const scoreEl = document.getElementById('report-score');
+    const totalEl = document.getElementById('report-total-trades');
+    const accEl = document.getElementById('report-accuracy');
+
+    if (gradeEl) gradeEl.textContent = grade;
+    if (scoreEl) scoreEl.textContent = `${accuracy}% Accuracy`;
+    if (totalEl) totalEl.textContent = guessCount;
+    if (accEl) accEl.textContent = `${correctCount}/${guessCount} Correct`;
     
     // Render Trade List from Journal
     const listContainer = document.getElementById('report-trade-list');
@@ -532,10 +562,11 @@ if (homeBtn) {
 }
 
 /* -----------------------------------------
-   8. KEYBOARD SHORTCUTS (Phase 5)
-   ArrowUp = UP guess, ArrowDown = DOWN guess
+   8. KEYBOARD SHORTCUTS
 ----------------------------------------- */
 window.addEventListener('keydown', (e) => {
+    if (!sessionActive || awaitingGuess === false && autoRevealActive === false) return;
+    
     if (e.key === 'ArrowUp')   { e.preventDefault(); handleGuess('up');   }
     if (e.key === 'ArrowDown') { e.preventDefault(); handleGuess('down'); }
 });
@@ -549,13 +580,28 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // ── Bind button listeners
     const el = id => document.getElementById(id);
-    if (el('narratorBtn')) el('narratorBtn').addEventListener('click', toggleNarrator);
-    if (el('revealBtn'))               el('revealBtn').addEventListener('click', startAutoReveal);
-    if (el('upBtn'))                   el('upBtn').addEventListener('click', () => handleGuess('up'));
-    if (el('downBtn'))                 el('downBtn').addEventListener('click', () => handleGuess('down'));
-    if (el('togglePatternsBtn'))       el('togglePatternsBtn').addEventListener('click', togglePatterns);
-    if (el('togglePatternExplainBtn')) el('togglePatternExplainBtn').addEventListener('click', togglePatternExplain);
-    if (el('summaryToggleBtn'))        el('summaryToggleBtn').addEventListener('click', toggleSummary);
+    
+    // Safe binding: only bind if element exists
+    if (el('narratorBtn')) el('narratorBtn').addEventListener('click', () => {
+        if (typeof toggleNarrator === 'function') toggleNarrator();
+    });
+    
+    if (el('revealBtn')) el('revealBtn').addEventListener('click', startAutoReveal);
+    
+    if (el('upBtn')) el('upBtn').addEventListener('click', () => handleGuess('up'));
+    if (el('downBtn')) el('downBtn').addEventListener('click', () => handleGuess('down'));
+    
+    if (el('togglePatternsBtn')) el('togglePatternsBtn').addEventListener('click', () => {
+        if (typeof togglePatterns === 'function') togglePatterns();
+    });
+    
+    if (el('togglePatternExplainBtn')) el('togglePatternExplainBtn').addEventListener('click', () => {
+        if (typeof togglePatternExplain === 'function') togglePatternExplain();
+    });
+    
+    if (el('summaryToggleBtn')) el('summaryToggleBtn').addEventListener('click', () => {
+        if (typeof toggleSummary === 'function') toggleSummary();
+    });
 
     loadFocusBlock();
 });
