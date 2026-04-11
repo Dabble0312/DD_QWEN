@@ -278,14 +278,10 @@ function handleGuess(guess) {
 /* -----------------------------------------
    6b. SCORE PENDING PREDICTION
 ----------------------------------------- */
-
-    function scorePendingPrediction() {
+unction scorePendingPrediction() {
     if (!pendingPrediction) return;
 
     const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
-    
-    // Clear pending immediately so it can't be scored twice
-    pendingPrediction = null;
     guessCount++;
 
     const predictedCandle = futureCandles[candleIndex];
@@ -294,15 +290,21 @@ function handleGuess(guess) {
 
     if (correct) {
         correctCount++;
-        showPopup("correct");    
-        showWSBPopup(true);      
+        if (typeof showPopup === 'function') showPopup("correct");
+        if (typeof showWSBPopup === 'function') showWSBPopup(true);
     } else {
         wrongCount++;
-        showPopup("wrong");
-        showWSBPopup(false);
+        if (typeof showPopup === 'function') showPopup("wrong");
+        if (typeof showWSBPopup === 'function') showWSBPopup(false);
+        
+        // ★★★ FIX 1: Immediate Feedback on 5th Wrong Guess
+        if (wrongCount >= MAX_WRONG) {
+            showStatus("❌ 5 Wrong Guesses — Session Ended!");
+            // We don't stop here, we let the reveal finish, then endSession triggers
+        }
     }
 
-    // ── Price target feedback
+    // Price target feedback
     const hasTarget = !isNaN(targetPrice) && targetPrice > 0;
     if (hasTarget) {
         const actual  = predictedCandle.close;
@@ -315,73 +317,59 @@ function handleGuess(guess) {
             msg = `📈 Actual was ${diffPct}% higher than your target`;
         else
             msg = `📉 Actual was ${diffPct}% lower than your target`;
-        showPriceFeedback(msg);
+
+        if (typeof showPriceFeedback === 'function') showPriceFeedback(msg);
     }
 
-    updateHUD();
+    if (typeof updateHUD === 'function') updateHUD();
 
-    // ★★★ CRITICAL CHECK: Did we hit the limit?
-    if (wrongCount >= MAX_WRONG) {
-        console.log(`🛑 LIMIT REACHED: ${wrongCount} wrong guesses. Ending session.`);
-        // Stop any auto-reveal loops immediately
-        autoRevealActive = false; 
-        awaitingGuess = false;
-        
-        // Force end session after a brief delay for the user to see the "Wrong" popup
-        setTimeout(() => endSession("focus_lost"), 1000);
-        return; // EXIT FUNCTION HERE - Do not proceed to next reveal
-    }
-
-    // Check if we ran out of candles naturally
-    if (revealIndex >= futureCandles.length) {
-        setTimeout(() => endSession("complete"), 1000);
-        return;
-    }
-
-    // If game continues, clear status soon
-    setTimeout(() => { showStatus(""); }, 2000);
+    pendingPrediction = null;
 }
-
 /* -----------------------------------------
    7. END SESSION
 ----------------------------------------- */
-function endSession(reason) {
+ync function endSession(reason) {
     sessionActive    = false;
     autoRevealActive = false;
     awaitingGuess    = false;
-    setButtonState("revealing");
+    
+    if (typeof setButtonState === 'function') setButtonState("done");
 
-    // Reveal all remaining candles at once
+    // Reveal all remaining candles
     revealedSoFar = [...futureCandles];
     renderChart();
 
-    const accuracy = guessCount > 0
-        ? Math.round((correctCount / guessCount) * 100)
-        : 0;
+    const accuracy = guessCount > 0 ? Math.round((correctCount / guessCount) * 100) : 0;
 
-    const title = reason === "focus_lost" ? "Focus Lost — Reset Needed" : "Session Complete";
+    // ★★★ FIX 2: Clear Status Message before Modal
+    showStatus(reason === "focus_lost" ? "Session Ended: Focus Lost" : "Session Complete");
 
-    const endScreen  = document.getElementById('endScreen');
-    const resultText = endScreen ? endScreen.querySelector('p') : null;
+    // Disable ONLY the game controls (Up/Down/Reveal), NOT the whole page
+    const controlGroup = document.querySelector('.control-group');
+    if (controlGroup) {
+        controlGroup.style.pointerEvents = 'none';
+        controlGroup.style.opacity = '0.5'; // Visual cue that it's disabled
+    }
+    
+    // Specifically disable game buttons but leave others alone
+    ['upBtn', 'downBtn', 'revealBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.disabled = true;
+    });
 
-    if (endScreen && resultText) {
-        resultText.innerHTML =
-            `<strong>${title}</strong><br><br>` +
-            `Guesses: <strong>${guessCount}</strong><br>` +
-            `Correct: <strong>${correctCount}</strong><br>` +
-            `Wrong: <strong>${wrongCount}</strong><br>` +
-            `Accuracy: <strong>${accuracy}%</strong><br>` +
-            `Candles revealed: <strong>${revealIndex} / ${futureCandles.length}</strong>`;
-        endScreen.classList.remove('hidden');
+    // ★★★ FIX 3: Ensure Journal Button stays ENABLED
+    const journalBtn = document.getElementById('journalBtn'); // Or whatever your ID is
+    if (journalBtn) {
+        journalBtn.disabled = false;
+        journalBtn.style.pointerEvents = 'auto';
+        journalBtn.style.opacity = '1';
+        journalBtn.textContent = "📊 View Final Report"; // Change text to invite click
     }
 
-    document.getElementById('playAgainBtn').onclick = () => {
-        endScreen.classList.add('hidden');
-        loadFocusBlock();
-    };
-    document.getElementById('homeBtn').onclick = () => {
-        window.location.href = 'index.html';
-    };
+    // Show Mission Report Modal automatically
+    setTimeout(() => {
+        showMissionReportModal(accuracy, reason);
+    }, 1000);
 }
 
 /* -----------------------------------------
