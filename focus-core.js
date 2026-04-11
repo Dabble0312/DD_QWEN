@@ -314,8 +314,6 @@ function scorePendingPrediction() {
     if (!pendingPrediction) return;
 
     const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
-    // Do not nullify pendingPrediction yet, we need it for the journal capture in revealNext
-    
     guessCount++;
 
     const predictedCandle = futureCandles[candleIndex];
@@ -330,9 +328,18 @@ function scorePendingPrediction() {
         wrongCount++;
         if (typeof showPopup === 'function') showPopup("wrong");
         if (typeof showWSBPopup === 'function') showWSBPopup(false);
+        
+        // ★★★ CRITICAL FIX: Check for Game Over here ★★★
+        if (wrongCount >= MAX_WRONG) {
+            if (typeof updateHUD === 'function') updateHUD();
+            // Delay slightly so user sees the "Wrong" popup before the modal hits
+            setTimeout(() => endSession("focus_lost"), 1000);
+            pendingPrediction = null;
+            return; 
+        }
     }
 
-    // ── Price target feedback
+    // Price target feedback
     const hasTarget = !isNaN(targetPrice) && targetPrice > 0;
     if (hasTarget) {
         const actual  = predictedCandle.close;
@@ -342,9 +349,9 @@ function scorePendingPrediction() {
         if (Math.abs(diff) / actual < 0.005)
             msg = `🎯 Spot on! Target ₹${targetPrice.toFixed(2)} vs actual ₹${actual.toFixed(2)}`;
         else if (diff > 0)
-            msg = `📈 Actual was ${diffPct}% higher than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
+            msg = `📈 Actual was ${diffPct}% higher than your target`;
         else
-            msg = `📉 Actual was ${diffPct}% lower than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
+            msg = `📉 Actual was ${diffPct}% lower than your target`;
 
         if (typeof showPriceFeedback === 'function') showPriceFeedback(msg);
     }
@@ -353,7 +360,6 @@ function scorePendingPrediction() {
 
     pendingPrediction = null;
 }
-
 /* -----------------------------------------
    6c. CAPTURE TRADE ENTRY FOR JOURNAL
 ----------------------------------------- */
