@@ -308,7 +308,7 @@ function handleGuess(guess) {
 }
 
 /* -----------------------------------------
-   6b. SCORE PENDING PREDICTION
+   6b. SCORE PENDING PREDICTION (UPDATED)
 ----------------------------------------- */
 function scorePendingPrediction() {
     if (!pendingPrediction) return;
@@ -329,13 +329,10 @@ function scorePendingPrediction() {
         if (typeof showPopup === 'function') showPopup("wrong");
         if (typeof showWSBPopup === 'function') showWSBPopup(false);
         
-        // ★★★ CRITICAL FIX: Check for Game Over here ★★★
+        // ★★★ FIX 1: Immediate Feedback on 5th Wrong Guess
         if (wrongCount >= MAX_WRONG) {
-            if (typeof updateHUD === 'function') updateHUD();
-            // Delay slightly so user sees the "Wrong" popup before the modal hits
-            setTimeout(() => endSession("focus_lost"), 1000);
-            pendingPrediction = null;
-            return; 
+            showStatus("❌ 5 Wrong Guesses — Session Ended!");
+            // We don't stop here, we let the reveal finish, then endSession triggers
         }
     }
 
@@ -360,65 +357,9 @@ function scorePendingPrediction() {
 
     pendingPrediction = null;
 }
-/* -----------------------------------------
-   6c. CAPTURE TRADE ENTRY FOR JOURNAL
------------------------------------------ */
-function captureTradeEntry() {
-    // Use window.JournalManager (new frontend-only system)
-    if (!pendingPrediction || !chart || !window.JournalManager) return;
-
-    const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
-    const predictedCandle = futureCandles[candleIndex];
-
-    // Calculate accuracy delta
-    const actualClose = predictedCandle.close;
-    let accuracyDelta = 0;
-    if (!isNaN(targetPrice) && targetPrice > 0) {
-        const diff = Math.abs(actualClose - targetPrice);
-        accuracyDelta = ((diff / actualClose) * 100);
-    }
-
-    // Determine if guess was correct
-    const priceWentUp = actualClose > baseClose;
-    const correctDirection = (guess === 'up' && priceWentUp) || (guess === 'down' && !priceWentUp);
-
-    // Get narrative text (stored globally by focus-narate.js)
-    const narrativeText = window.currentNarrativeText || 'No analysis generated.';
-
-    // Capture screenshot
-    let screenshot = null;
-    try {
-        screenshot = chart.takeScreenshot();
-    } catch (e) {
-        console.error('[focus-core] Failed to capture screenshot:', e);
-    }
-
-    // Build log object matching the contract
-    const logEntry = {
-        screenshot: screenshot,
-        narration: narrativeText,
-        userGuess: {
-            trend: guess,
-            priceTarget: targetPrice || 0
-        },
-        accuracy: accuracyDelta,
-        metadata: {
-            correctDirection: correctDirection,
-            actualClose: actualClose,
-            baseClose: baseClose
-        }
-    };
-
-    // Save to JournalManager
-    window.JournalManager.addEntry(logEntry);
-    
-    console.log('[Journal] Trade captured:', logEntry);
-}
-
-
 
 /* -----------------------------------------
-   7. END SESSION
+   7. END SESSION (UPDATED)
 ----------------------------------------- */
 async function endSession(reason) {
     sessionActive    = false;
@@ -427,119 +368,42 @@ async function endSession(reason) {
     
     if (typeof setButtonState === 'function') setButtonState("done");
 
-    // Reveal all remaining candles at once
+    // Reveal all remaining candles
     revealedSoFar = [...futureCandles];
     renderChart();
 
-    const accuracy = guessCount > 0
-        ? Math.round((correctCount / guessCount) * 100)
-        : 0;
+    const accuracy = guessCount > 0 ? Math.round((correctCount / guessCount) * 100) : 0;
 
-    const title = reason === "focus_lost" ? "Focus Lost — Reset Needed" : "Session Complete";
+    // ★★★ FIX 2: Clear Status Message before Modal
+    showStatus(reason === "focus_lost" ? "Session Ended: Focus Lost" : "Session Complete");
 
-    // 2. Disable Controls
-    const controls = document.querySelector('.control-group');
-    if (controls) controls.style.pointerEvents = 'none';
+    // Disable ONLY the game controls (Up/Down/Reveal), NOT the whole page
+    const controlGroup = document.querySelector('.control-group');
+    if (controlGroup) {
+        controlGroup.style.pointerEvents = 'none';
+        controlGroup.style.opacity = '0.5'; // Visual cue that it's disabled
+    }
     
-    const inputs = document.querySelectorAll('input, button');
-    inputs.forEach(el => {
-        // Don't disable the journal button or home button if they exist outside control-group
-        if (!el.closest('#mission-report-modal')) {
-             el.disabled = true;
-        }
+    // Specifically disable game buttons but leave others alone
+    ['upBtn', 'downBtn', 'revealBtn'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.disabled = true;
     });
 
-    // 3. Show Mission Report Modal instead of basic end screen
+    // ★★★ FIX 3: Ensure Journal Button stays ENABLED
+    const journalBtn = document.getElementById('journalBtn'); // Or whatever your ID is
+    if (journalBtn) {
+        journalBtn.disabled = false;
+        journalBtn.style.pointerEvents = 'auto';
+        journalBtn.style.opacity = '1';
+        journalBtn.textContent = "📊 View Final Report"; // Change text to invite click
+    }
+
+    // Show Mission Report Modal automatically
     setTimeout(() => {
         showMissionReportModal(accuracy, reason);
-    }, 800);
+    }, 1000);
 }
-
-function showMissionReportModal(accuracy, reason) {
-    const modal = document.getElementById('mission-report-modal');
-    if (!modal) {
-        console.warn("⚠️ Mission report modal not found in DOM");
-        // Fallback alert if modal is missing
-        alert(`Session Ended! Accuracy: ${accuracy}%\nRefresh to play again.`);
-        return;
-    }
-
-    // Calculate Grade
-    let grade = 'F';
-    if (accuracy >= 90) grade = 'A+';
-    else if (accuracy >= 80) grade = 'A';
-    else if (accuracy >= 70) grade = 'B';
-    else if (accuracy >= 60) grade = 'C';
-    else if (accuracy >= 50) grade = 'D';
-
-    // Populate Stats
-    const gradeEl = document.getElementById('report-grade');
-    const scoreEl = document.getElementById('report-score');
-    const totalEl = document.getElementById('report-total-trades');
-    const accEl = document.getElementById('report-accuracy');
-
-    if (gradeEl) gradeEl.textContent = grade;
-    if (scoreEl) scoreEl.textContent = `${accuracy}% Accuracy`;
-    if (totalEl) totalEl.textContent = guessCount;
-    if (accEl) accEl.textContent = `${correctCount}/${guessCount} Correct`;
-    
-    // Render Trade List from JournalManager
-    const listContainer = document.getElementById('report-trade-list');
-    if (listContainer) {
-        listContainer.innerHTML = '';
-        
-        const recentTrades = window.JournalManager ? window.JournalManager.getAll().slice(0, 5) : [];
-        
-        if (recentTrades.length === 0) {
-            listContainer.innerHTML = '<div class="empty-state">No trades recorded this session</div>';
-        } else {
-            recentTrades.forEach(trade => {
-                const item = document.createElement('div');
-                item.className = 'trade-log-item';
-                const isWin = trade.metadata && trade.metadata.correctDirection;
-                const resultClass = isWin ? 'badge-success' : 'badge-danger';
-                const direction = trade.userGuess ? trade.userGuess.trend.toUpperCase() : 'UNKNOWN';
-                item.innerHTML = `
-                    <div class="trade-snapshot">
-                        <img src="${trade.screenshot || ''}" alt="Chart" onerror="this.style.display='none'" />
-                    </div>
-                    <div class="trade-details">
-                        <div class="trade-header">
-                            <span class="badge ${resultClass}">${isWin ? 'WIN' : 'LOSS'}</span>
-                            <span class="trade-dir">${direction}</span>
-                        </div>
-                        <div class="trade-narrative">${trade.narration ? trade.narration.substring(0, 60) + '...' : 'No analysis'}</div>
-                    </div>
-                `;
-                listContainer.appendChild(item);
-            });
-        }
-    }
-
-    // Show Modal
-    modal.classList.add('active');
-    console.log("📊 Mission Report Modal Displayed");
-}
-
-// Expose global functions for HTML buttons
-window.downloadPDFReport = () => {
-    alert("PDF Export feature will be added in the next update. For now, you can view your trades in the Journal modal.");
-};
-
-window.closeMissionReport = () => {
-    const modal = document.getElementById('mission-report-modal');
-    if (modal) modal.classList.remove('active');
-    window.location.href = 'index.html';
-};
-
-// Fallback navigation if buttons exist
-const homeBtn = document.getElementById('homeBtn');
-if (homeBtn) {
-    homeBtn.onclick = () => {
-        window.location.href = 'index.html';
-    };
-}
-
 /* -----------------------------------------
    8. KEYBOARD SHORTCUTS
 ----------------------------------------- */
