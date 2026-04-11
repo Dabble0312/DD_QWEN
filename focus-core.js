@@ -310,7 +310,7 @@ function handleGuess(guess) {
 /* -----------------------------------------
    6b. SCORE PENDING PREDICTION (UPDATED)
 ----------------------------------------- */
-function scorePendingPrediction() {
+unction scorePendingPrediction() {
     if (!pendingPrediction) return;
 
     const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
@@ -358,10 +358,17 @@ function scorePendingPrediction() {
     pendingPrediction = null;
 }
 
+
+    pendingPrediction = null;
+}
 /* -----------------------------------------
    7. END SESSION (UPDATED)
 ----------------------------------------- */
+
 async function endSession(reason) {
+
+ync function endSession(reason) {
+main
     sessionActive    = false;
     autoRevealActive = false;
     awaitingGuess    = false;
