@@ -345,7 +345,15 @@ function scorePendingPrediction() {
             msg = `📈 Actual was ${diffPct}% higher than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
         else
             msg = `📉 Actual was ${diffPct}% lower than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
-        
+
+        if (typeof showPriceFeedback === 'function') showPriceFeedback(msg);
+    }
+
+    if (typeof updateHUD === 'function') updateHUD();
+
+    pendingPrediction = null;
+}
+
 /* -----------------------------------------
    6c. CAPTURE TRADE ENTRY FOR JOURNAL
 ----------------------------------------- */
@@ -401,40 +409,7 @@ function captureTradeEntry() {
     console.log('[Journal] Trade captured:', logEntry);
 }
 
-    // Save to JournalManager
-    window.JournalManager.addEntry(logEntry);
-    
-    console.log('[Journal] Trade captured:', logEntry);
 
-    // Use the narrative text that was just generated/spoken
-    // If the narrator hasn't finished, we might grab the latest partial, 
-    // but ideally this is called right after the narrator starts or finishes.
-    // For now, we grab the global lastNarrativeText which the narrator updates.
-    const narrativeText = lastNarrativeText || "Analysis generated for this move.";
-
-    // Determine result string
-    const resultString = isCorrect ? "WIN" : "LOSS";
-
-    // Capture with JournalManager
-    if (window.JournalManager) {
-        window.JournalManager.addEntry({
-            screenshot: chart.takeScreenshot(),
-            narration: narrativeText,
-            userGuess: { trend: guess || 'unknown', priceTarget: targetPrice || 0 },
-            accuracy: accuracyDelta,
-            metadata: { correctDirection: isCorrect, actualClose: actualData.close }
-        });
-    } else {
-        console.warn('[focus-core] JournalManager not available');
-    }
-
-    // Reset guess storage for next round ONLY AFTER capturing
-    // We keep pendingPrediction alive until the next guess starts
-    // But we clear the specific guess data used for this log
-    // currentUserGuess = null; 
-    // currentPriceTarget = null;
-
-}
 
 /* -----------------------------------------
    7. END SESSION
@@ -444,7 +419,7 @@ async function endSession(reason) {
     autoRevealActive = false;
     awaitingGuess    = false;
     
-    if (typeof setButtonState === 'function') setButtonState("revealing");
+    if (typeof setButtonState === 'function') setButtonState("done");
 
     // Reveal all remaining candles at once
     revealedSoFar = [...futureCandles];
