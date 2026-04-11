@@ -84,6 +84,10 @@ function runNarratorEngine() {
     var burstSize   = _getRevealCount();
     var recentBurst = burst.slice(-burstSize);
     var script      = _buildRevealScript(history, burst, recentBurst);
+    
+    // Store for journal access
+    window.currentNarrativeText = _clean(_filterAndJoin(script));
+    
     _speak(script);
     
     return script;

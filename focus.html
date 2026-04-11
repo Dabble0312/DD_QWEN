@@ -319,7 +319,7 @@
     <script src="supabase.js"></script>
     <script src="shared/chart.js"></script>
     <script src="shared/ui.js"></script>
-    <script src="js/services/JournalService.js"></script>
+    <script src="js/services/JournalManager.js"></script>
     <script src="focus-summary.js"></script>
     <script src="focus-patterns.js"></script>
     <script src="focus-narate.js"></script>
@@ -382,17 +382,15 @@
 
             if (exportPdfBtn) {
                 exportPdfBtn.addEventListener('click', function() {
-                    if (window.JournalService) {
-                        window.JournalService.exportPDF();
-                    }
+                    alert('PDF Export will be available when database is connected. For now, use browser Print (Ctrl+P) on this page.');
                 });
             }
 
             if (clearJournalBtn) {
                 clearJournalBtn.addEventListener('click', function() {
                     if (confirm('Are you sure you want to clear all journal history? This cannot be undone.')) {
-                        if (window.JournalService) {
-                            window.JournalService.clearAll();
+                        if (window.JournalManager) {
+                            window.JournalManager.clear();
                             openJournalModal(); // Refresh display
                         }
                     }

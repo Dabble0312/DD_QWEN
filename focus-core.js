@@ -347,39 +347,55 @@ function scorePendingPrediction() {
    6c. CAPTURE TRADE ENTRY FOR JOURNAL
 ----------------------------------------- */
 function captureTradeEntry() {
-    if (!pendingPrediction || !chart || !window.JournalService) return;
+    // Use window.JournalManager (new frontend-only system)
+    if (!pendingPrediction || !chart || !window.JournalManager) return;
 
-    const { candleIndex, baseClose } = pendingPrediction;
+    const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
     const predictedCandle = futureCandles[candleIndex];
+    
+    // Calculate accuracy delta
+    const actualClose = predictedCandle.close;
+    let accuracyDelta = 0;
+    if (!isNaN(targetPrice) && targetPrice > 0) {
+        const diff = Math.abs(actualClose - targetPrice);
+        accuracyDelta = ((diff / actualClose) * 100);
+    }
+    
+    // Determine if guess was correct
+    const priceWentUp = actualClose > baseClose;
+    const correctDirection = (guess === 'up' && priceWentUp) || (guess === 'down' && !priceWentUp);
 
-    // Get the actual data for the burst end candle
-    const actualData = {
-        close: predictedCandle.close,
-        open: predictedCandle.open,
-        high: predictedCandle.high,
-        low: predictedCandle.low
-    };
+    // Get narrative text (stored globally by focus-narate.js)
+    const narrativeText = window.currentNarrativeText || 'No analysis generated.';
 
-    // Generate narrative text for journal (without speaking)
-    let narrativeText = '';
-    if (typeof generateNarrativeText === 'function') {
-        narrativeText = generateNarrativeText() || 'No analysis generated.';
+    // Capture screenshot
+    let screenshot = null;
+    try {
+        screenshot = chart.takeScreenshot();
+    } catch (e) {
+        console.error('[focus-core] Failed to capture screenshot:', e);
     }
 
-    // Capture with JournalService
-    window.JournalService.captureTradeEntry(
-        chart,
-        narrativeText,
-        { direction: currentUserGuess ? currentUserGuess.toUpperCase() : 'UNKNOWN', target: currentPriceTarget || 0 },
-        actualData,
-        'FOCUS_SESSION'
-    ).catch(err => {
-        console.error('[focus-core] Failed to capture trade entry:', err);
-    });
+    // Build log object matching the contract
+    const logEntry = {
+        screenshot: screenshot,
+        narration: narrativeText,
+        userGuess: {
+            trend: guess,
+            priceTarget: targetPrice || 0
+        },
+        accuracy: accuracyDelta,
+        metadata: {
+            correctDirection: correctDirection,
+            actualClose: actualClose,
+            baseClose: baseClose
+        }
+    };
 
-    // Reset guess storage for next round
-    currentUserGuess = null;
-    currentPriceTarget = null;
+    // Save to JournalManager
+    window.JournalManager.addEntry(logEntry);
+    
+    console.log('[Journal] Trade captured:', logEntry);
 }
 
 /* -----------------------------------------
