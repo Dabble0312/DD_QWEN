@@ -278,10 +278,13 @@ function handleGuess(guess) {
 /* -----------------------------------------
    6b. SCORE PENDING PREDICTION
 ----------------------------------------- */
-function scorePendingPrediction() {
+
+    function scorePendingPrediction() {
     if (!pendingPrediction) return;
 
     const { guess, targetPrice, candleIndex, baseClose } = pendingPrediction;
+    
+    // Clear pending immediately so it can't be scored twice
     pendingPrediction = null;
     guessCount++;
 
@@ -291,8 +294,8 @@ function scorePendingPrediction() {
 
     if (correct) {
         correctCount++;
-        showPopup("correct");    // shared/ui.js
-        showWSBPopup(true);      // shared/ui.js
+        showPopup("correct");    
+        showWSBPopup(true);      
     } else {
         wrongCount++;
         showPopup("wrong");
@@ -309,23 +312,33 @@ function scorePendingPrediction() {
         if (Math.abs(diff) / actual < 0.005)
             msg = `🎯 Spot on! Target ₹${targetPrice.toFixed(2)} vs actual ₹${actual.toFixed(2)}`;
         else if (diff > 0)
-            msg = `📈 Actual was ${diffPct}% higher than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
+            msg = `📈 Actual was ${diffPct}% higher than your target`;
         else
-            msg = `📉 Actual was ${diffPct}% lower than your target (₹${targetPrice.toFixed(2)} → ₹${actual.toFixed(2)})`;
-        showPriceFeedback(msg);   // focus-ui.js
+            msg = `📉 Actual was ${diffPct}% lower than your target`;
+        showPriceFeedback(msg);
     }
 
-    updateHUD();    // focus-ui.js
+    updateHUD();
 
+    // ★★★ CRITICAL CHECK: Did we hit the limit?
     if (wrongCount >= MAX_WRONG) {
-        setTimeout(() => endSession("focus_lost"), 1400);
-        return;
+        console.log(`🛑 LIMIT REACHED: ${wrongCount} wrong guesses. Ending session.`);
+        // Stop any auto-reveal loops immediately
+        autoRevealActive = false; 
+        awaitingGuess = false;
+        
+        // Force end session after a brief delay for the user to see the "Wrong" popup
+        setTimeout(() => endSession("focus_lost"), 1000);
+        return; // EXIT FUNCTION HERE - Do not proceed to next reveal
     }
+
+    // Check if we ran out of candles naturally
     if (revealIndex >= futureCandles.length) {
-        setTimeout(() => endSession("complete"), 1400);
+        setTimeout(() => endSession("complete"), 1000);
         return;
     }
 
+    // If game continues, clear status soon
     setTimeout(() => { showStatus(""); }, 2000);
 }
 
